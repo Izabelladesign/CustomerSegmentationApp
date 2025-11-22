@@ -16,11 +16,34 @@ public class Customer {
         this.status = status;
     }
 
-    public int getCustomerID() { return customerID; }
-    public String getFirstName() { return firstName; }
-    public String getLastName() { return lastName; }
-    public String getEmail() { return email; }
-    public String getStatus() { return status; }
+    public int getCustomerID() { 
+        return customerID; 
+    }
+
+    public String getFirstName() { 
+        return firstName; 
+    }
+
+    public String getLastName() { 
+        return lastName; 
+    }
+
+    public String getEmail() { 
+        return email; 
+    }
+
+    public String getStatus() { 
+        return status; 
+    }
+
+    // DAO compatibility getters:
+    public String getCustomerEmail() {
+        return email;
+    }
+
+    public String getCustomerStatus() {
+        return status;
+    }
 
     @Override
     public String toString() {
