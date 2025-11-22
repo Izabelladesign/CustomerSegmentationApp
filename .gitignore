@@ -1,0 +1,4 @@
+app/lib/src/db/db.properties
+*.class
+*.log
+.DS_Store
