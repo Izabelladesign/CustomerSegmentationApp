@@ -1,3 +1,4 @@
 app/lib/src/db/db.properties
 *.class
-*.loggit add .gitignore
+*.log
+.DS_Store
