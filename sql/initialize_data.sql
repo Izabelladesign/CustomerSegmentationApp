@@ -4,7 +4,7 @@ USE segdb;
 INSERT INTO Customers (FirstName, LastName, CustomerEmail, CustomerStatus)
 VALUES
 ('Zara', 'Rahim', 'Zara@example.com', 'Active'),
-('Arianna', 'Gonzalez', 'Arianna@example.com', 'Active'),
+('Arianna', 'Grande', 'Arianna@example.com', 'Active'),
 ('Maseena', 'Usman', 'Maseena@example.com', 'Inactive'),
 ('Yemimah', 'Raza', 'Yemimah@example.com', 'Active'),
 ('Aiyanna', 'Muniz', 'Aiyanna@example.com', 'Active');
@@ -41,7 +41,7 @@ INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice)
 VALUES 
 (1, 1, 1, 899.99),    -- Laptop
 (1, 2, 1, 29.99),     -- Wireless Mouse
-(1, 5, 1, 14.99);     -- USB-C Cable
+(1, 5, 1, 9.99);     -- USB-C Cable
 
 -- Arianna's simple order
 INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice)
@@ -50,3 +50,10 @@ VALUES (2, 2, 1, 29.99);
 -- Maseena's order
 INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice)
 VALUES (3, 4, 1, 49.99);
+
+INSERT INTO Segments (SegmentID, SegmentName, Description) VALUES
+(1, 'Loyal', 'Frequent and recent purchasers with strong activity'),
+(2, 'New', 'Recently joined customers'),
+(3, 'At-Risk', 'Customers slowing their activity'),
+(4, 'Churned', 'Customers inactive for a long time'),
+(5, 'High-Value', 'Customers with high spending');

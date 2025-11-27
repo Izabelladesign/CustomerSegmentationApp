@@ -11,6 +11,7 @@ public class Product {
         this.unitPrice = unitPrice;
     }
 
+
     // getters only (we don't modify product records)
     public int getProductID() { return productID; }
     public String getProductName() { return productName; }
