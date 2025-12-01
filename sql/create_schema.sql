@@ -6,11 +6,11 @@ DROP TABLE IF EXISTS Customers;
 
 CREATE TABLE Customers (
     CustomerID INT AUTO_INCREMENT PRIMARY KEY,
-    FirstName VARCHAR(50),
-    LastName VARCHAR(50),
-    CustomerEmail VARCHAR(100) UNIQUE,
-    CustomerStatus VARCHAR(20),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    CustomerEmail VARCHAR(100) NOT NULL UNIQUE,
+    CustomerStatus VARCHAR(20) NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -20,8 +20,8 @@ DROP TABLE IF EXISTS Products;
 
 CREATE TABLE Products (
     ProductID INT AUTO_INCREMENT PRIMARY KEY,
-    ProductName VARCHAR(100),
-    ProductPrice DECIMAL(10,2)
+    ProductName VARCHAR(100) NOT NULL,
+    ProductPrice DECIMAL(10,2) NOT NULL
 );
 
 
@@ -31,9 +31,9 @@ DROP TABLE IF EXISTS Orders;
 
 CREATE TABLE Orders (
     OrderID INT AUTO_INCREMENT PRIMARY KEY,
-    CustomerID INT,
-    OrderDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    OrderAmount DECIMAL(10,2),
+    CustomerID INT NOT NULL,
+    OrderDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    OrderAmount DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
         ON DELETE CASCADE
 );
@@ -44,11 +44,11 @@ DROP TABLE IF EXISTS OrderItems;
 
 CREATE TABLE OrderItems (
     OrderItemID INT AUTO_INCREMENT PRIMARY KEY,
-    OrderID INT,
-    ProductID INT,
-    Quantity INT CHECK (Quantity > 0),
-    UnitPrice DECIMAL(10,2),
-    LineTotal DECIMAL(10,2) GENERATED ALWAYS AS (Quantity * UnitPrice) STORED,
+    OrderID INT NOT NULL,
+    ProductID INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    UnitPrice DECIMAL(10,2) NOT NULL,
+    LineTotal DECIMAL(10,2) GENERATED ALWAYS AS (Quantity * UnitPrice) STORED NOT NULL,
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
         ON DELETE CASCADE,
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
@@ -60,8 +60,8 @@ DROP TABLE IF EXISTS Segments;
 
 CREATE TABLE Segments (
     SegmentID INT AUTO_INCREMENT PRIMARY KEY,
-    SegmentName VARCHAR(50),
-    Description VARCHAR(255)
+    SegmentName VARCHAR(50) NOT NULL,
+    Description VARCHAR(255) NOT NULL
 );
 
 
@@ -70,13 +70,13 @@ DROP TABLE IF EXISTS CustomerSegments;
 
 CREATE TABLE CustomerSegments (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    CustomerID INT,
-    SegmentID INT,
-    AsOfDate DATE DEFAULT (CURRENT_DATE),
-    R INT,
-    F INT,
-    M DECIMAL(10,2),
-    RFMScore INT,
+    CustomerID INT NOT NULL,
+    SegmentID INT NOT NULL,
+    AsOfDate DATE NOT NULL DEFAULT (CURRENT_DATE),
+    R INT NOT NULL,
+    F INT NOT NULL,
+    M DECIMAL(10,2) NOT NULL,
+    RFMScore INT NOT NULL,
     FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
         ON DELETE CASCADE,
     FOREIGN KEY (SegmentID) REFERENCES Segments(SegmentID)

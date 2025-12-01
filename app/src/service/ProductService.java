@@ -16,4 +16,13 @@ public class ProductService {
         Product p = new Product(0, name, price);
         dao.insert(p);
     }
+
+    public void updateProduct(int id, String name, double price) throws Exception {
+        Product p = new Product(id, name, price);
+        dao.update(p);
+    }
+
+    public void deleteProduct(int id) throws Exception {
+        dao.delete(id);
+    }
 }

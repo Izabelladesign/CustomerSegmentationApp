@@ -36,9 +36,10 @@ public class Main {
             System.out.println("3. List Products");
             System.out.println("4. Add Product");
             System.out.println("5. Recompute RFM Segments");
-            System.out.println("6. Add Order (simple)");
-            System.out.println("7. View Orders for Customer");
-            System.out.println("8. View Revenue by Segment");
+            System.out.println("6. View Customer Segments");
+            System.out.println("7. Add Order (simple)");
+            System.out.println("8. View Orders for Customer");
+            System.out.println("9. View Revenue by Segment");
             System.out.println("0. Exit");
             System.out.print("Choose an option: ");
 
@@ -67,12 +68,15 @@ public class Main {
                         recomputeRFM();
                         break;
                     case 6:
-                        addOrder(sc);
+                        viewCustomerSegments();
                         break;
                     case 7:
-                        viewOrdersForCustomer(sc);
+                        addOrder(sc);
                         break;
                     case 8:
+                        viewOrdersForCustomer(sc);
+                        break;
+                    case 9:
                         viewRevenueBySegment();
                         break;
                     case 0:
@@ -135,7 +139,20 @@ public class Main {
     private static void recomputeRFM() throws Exception {
         System.out.println("\nRecomputing RFM segments...");
         rfmService.recompute();
-        System.out.println("RFM recompute complete. Check CustomerSegments table.");
+        System.out.println("RFM recompute complete!");
+    }
+
+    private static void viewCustomerSegments() throws Exception {
+        System.out.println("\n--- Customer Segments ---");
+        List<String> segments = rfmService.getAllSegmentsWithNames();
+        if (segments.isEmpty()) {
+            System.out.println("No customer segments found. Run 'Recompute RFM Segments' first.");
+        } else {
+            for (String seg : segments) {
+                System.out.println(seg);
+            }
+            System.out.println("\nTotal: " + segments.size() + " customer segment(s)");
+        }
     }
 
     private static void addOrder(Scanner sc) throws Exception {

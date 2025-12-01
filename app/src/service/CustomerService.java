@@ -16,4 +16,13 @@ public class CustomerService {
         Customer c = new Customer(0, f, l, email, status);
         dao.insert(c);
     }
+
+    public void updateCustomer(int id, String f, String l, String email, String status) throws Exception {
+        Customer c = new Customer(id, f, l, email, status);
+        dao.update(c);
+    }
+
+    public void deleteCustomer(int id) throws Exception {
+        dao.delete(id);
+    }
 }

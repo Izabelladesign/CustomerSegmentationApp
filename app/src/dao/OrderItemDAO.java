@@ -10,11 +10,10 @@ import java.util.List;
 public class OrderItemDAO {
 
     public void insertItem(int orderID, int productID, int quantity, double unitPrice) throws Exception {
-        Connection conn = DBConnection.get();
-        String sql = "INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice) " +
-                     "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice) VALUES (?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.get();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, orderID);
             stmt.setInt(2, productID);
             stmt.setInt(3, quantity);
@@ -24,14 +23,14 @@ public class OrderItemDAO {
     }
 
     public List<OrderItem> listByOrder(int orderID) throws Exception {
-        Connection conn = DBConnection.get();
         String sql = "SELECT * FROM OrderItems WHERE OrderID = ?";
 
-        List<OrderItem> items = new ArrayList<>();
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.get();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, orderID);
+
             try (ResultSet rs = stmt.executeQuery()) {
+                List<OrderItem> items = new ArrayList<>();
                 while (rs.next()) {
                     OrderItem item = new OrderItem(
                             rs.getInt("OrderItemID"),
@@ -43,9 +42,29 @@ public class OrderItemDAO {
                     );
                     items.add(item);
                 }
+                return items;
             }
         }
+    }
 
-        return items;
+    public void updateQuantity(int orderItemID, int newQuantity) throws Exception {
+        String sql = "UPDATE OrderItems SET Quantity = ? WHERE OrderItemID = ?";
+
+        try (Connection conn = DBConnection.get();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, newQuantity);
+            stmt.setInt(2, orderItemID);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void deleteItem(int orderItemID) throws Exception {
+        String sql = "DELETE FROM OrderItems WHERE OrderItemID = ?";
+
+        try (Connection conn = DBConnection.get();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderItemID);
+            stmt.executeUpdate();
+        }
     }
 }
