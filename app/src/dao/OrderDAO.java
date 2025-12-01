@@ -1,0 +1,55 @@
+package dao;
+
+import db.DBConnection;
+import model.Order;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class OrderDAO {
+
+    public int insertOrder(int customerID, double orderAmount) throws Exception {
+        Connection conn = DBConnection.get();
+        String sql = "INSERT INTO Orders (CustomerID, OrderDate, OrderAmount) " +
+                     "VALUES (?, NOW(), ?)";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, customerID);
+            stmt.setDouble(2, orderAmount);
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    throw new RuntimeException("Failed to get generated OrderID");
+                }
+            }
+        }
+    }
+
+    public List<Order> listByCustomer(int customerID) throws Exception {
+        Connection conn = DBConnection.get();
+        String sql = "SELECT * FROM Orders WHERE CustomerID = ? ORDER BY OrderDate DESC";
+
+        List<Order> orders = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, customerID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Order o = new Order(
+                            rs.getInt("OrderID"),
+                            rs.getInt("CustomerID"),
+                            rs.getTimestamp("OrderDate"),
+                            rs.getDouble("OrderAmount")
+                    );
+                    orders.add(o);
+                }
+            }
+        }
+
+        return orders;
+    }
+}
