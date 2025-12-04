@@ -233,19 +233,37 @@ public class OrdersPanel extends JPanel {
         String productIdStr = createProductIdField.getText().trim();
         String quantityStr = createQuantityField.getText().trim();
 
-        if (customerIdStr.isEmpty() || productIdStr.isEmpty() || quantityStr.isEmpty()) {
-            showError("Customer ID, Product ID, and Quantity are required.");
+        if (customerIdStr.isEmpty() || productIdStr.isEmpty()) {
+            showError("Customer ID and Product ID are required.");
             return;
+        }
+
+        // Default quantity to 1 if not provided
+        int quantity = 1;
+        if (!quantityStr.isEmpty()) {
+            try {
+                quantity = Integer.parseInt(quantityStr);
+                if (quantity <= 0) {
+                    showError("Quantity must be a positive number.");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                showError("Invalid quantity format. Please enter a number.");
+                return;
+            }
         }
 
         SwingUtilities.invokeLater(() -> {
             try {
                 int customerID = Integer.parseInt(customerIdStr);
                 int productID = Integer.parseInt(productIdStr);
-                int quantity = Integer.parseInt(quantityStr);
                 
                 int orderId = orderService.createOrderWithProduct(customerID, productID, quantity);
-                showInfo("Order " + orderId + " created successfully.");
+                showInfo("Order " + orderId + " created successfully for " + 
+                        createCustomerNameField.getText() + " - " + 
+                        createProductNameField.getText() + " (Qty: " + quantity + ")");
+                
+                // Clear all fields
                 createCustomerIdField.setText("");
                 createCustomerNameField.setText("");
                 createProductIdField.setText("");
@@ -255,7 +273,7 @@ public class OrdersPanel extends JPanel {
                 // auto-refresh display
                 viewAllOrders();
             } catch (NumberFormatException ex) {
-                showError("Invalid number format for customer ID, product ID, or quantity.");
+                showError("Invalid number format for customer ID or product ID.");
             } catch (Exception ex) {
                 showError("Failed to create order: " + ex.getMessage());
             }
