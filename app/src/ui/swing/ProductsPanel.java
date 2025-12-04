@@ -202,46 +202,32 @@ public class ProductsPanel extends JPanel {
     private void deleteProduct() {
         String idStr = idField.getText().trim();
         if (idStr.isEmpty()) {
-            showError("Please select a product from the table to update.");
+            showError("Please select a product from the table to delete.");
             return;
         }
-        
+
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to delete this product?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (option != JOptionPane.YES_OPTION) {
+            return;
+        }
+
         try {
             int id = Integer.parseInt(idStr);
-            String name = nameField.getText().trim();
-            String priceStr = priceField.getText().trim();
-            String invStr = inventoryField.getText().trim();
-        
-            
-            if (name.isEmpty() || priceStr.isEmpty() || invStr.isEmpty()) {
-                showError("Name, Price, and Inventory are required.");
-                return;
-            }
-        
-            double price = Double.parseDouble(priceStr);
-            int inventory = Integer.parseInt(invStr);
-        
-            if (price < 0) {
-                showError("Price must be a positive number.");
-                return;
-            }
-            if (inventory < 0) {
-                showError("Inventory must be a non-negative whole number.");
-                return;
-            }
-        
-            productService.updateProduct(id, name, price, inventory);
+            productService.deleteProduct(id);
             clearForm();
             loadProducts();
-            showSuccess("Product updated successfully!");
+            showSuccess("Product deleted successfully!");
         } catch (NumberFormatException ex) {
-            showError("Invalid format: ID must be an integer; price/inventory must be numbers.");
+            showError("Invalid product ID format.");
         } catch (Exception ex) {
-            showError("Failed to update product: " + ex.getMessage());
+            showError("Failed to delete product: " + ex.getMessage());
         }
-        
-        
-        
     }
 
     private void clearForm() {

@@ -10,10 +10,10 @@ public class CustomerSegment {
     private int r;
     private int f;
     private double m;
-    private String rfmScore;
+    private int rfmScore;
 
     public CustomerSegment(int id, int customerID, int segmentID,
-                           Date asOfDate, int r, int f, double m, String rfmScore) {
+                           Date asOfDate, int r, int f, double m, int rfmScore) {
         this.id = id;
         this.customerID = customerID;
         this.segmentID = segmentID;
@@ -52,7 +52,7 @@ public class CustomerSegment {
         return m;
     }
 
-    public String getRfmScore() {
+    public int getRfmScore() {
         return rfmScore;
     }
 

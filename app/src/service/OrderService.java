@@ -9,12 +9,18 @@ public class OrderService {
 
     private final OrderDAO orderDAO = new OrderDAO();
 
-    /**
-     * Gets all orders for a specific customer.
-     * Note: Order creation is handled by customers through their interface, not by admins.
-     */
     public List<Order> getOrdersForCustomer(int customerID) throws Exception {
         return orderDAO.listByCustomer(customerID);
+    }
+
+    public int createOrder(int customerID, double amount) throws Exception {
+        if (customerID <= 0) {
+            throw new IllegalArgumentException("Customer ID must be positive.");
+        }
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Order amount must be positive.");
+        }
+        return orderDAO.insertOrder(customerID, amount);
     }
 
     public void updateOrderAmount(int orderID, double newAmount) throws Exception {

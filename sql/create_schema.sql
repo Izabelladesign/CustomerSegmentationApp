@@ -1,8 +1,16 @@
 -- Create tables for Customer Segmentation Database
 USE segdb;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Drop tables in dependency order
+DROP TABLE IF EXISTS OrderItems;
+DROP TABLE IF EXISTS Orders;
+DROP TABLE IF EXISTS CustomerSegments;
+DROP TABLE IF EXISTS Products;
+DROP TABLE IF EXISTS Customers;
+DROP TABLE IF EXISTS Segments;
 
 -- 1. CUSTOMERS
-DROP TABLE IF EXISTS Customers;
 
 CREATE TABLE Customers (
     CustomerID INT AUTO_INCREMENT PRIMARY KEY,
@@ -16,8 +24,6 @@ CREATE TABLE Customers (
 
 
 -- 2. PRODUCTS
-DROP TABLE IF EXISTS Products;
-
 CREATE TABLE Products (
     ProductID INT AUTO_INCREMENT PRIMARY KEY,
     ProductName VARCHAR(100) NOT NULL,
@@ -28,8 +34,6 @@ CREATE TABLE Products (
 
 
 -- 3. ORDERS
-DROP TABLE IF EXISTS Orders;
-
 CREATE TABLE Orders (
     OrderID INT AUTO_INCREMENT PRIMARY KEY,
     CustomerID INT NOT NULL,
@@ -45,8 +49,6 @@ CREATE TABLE Orders (
 
 -- 4. ORDER ITEMS
 -- 4. ORDER ITEMS
-DROP TABLE IF EXISTS OrderItems;
-
 CREATE TABLE OrderItems (
     OrderItemID INT AUTO_INCREMENT PRIMARY KEY,
     OrderID INT NOT NULL,
@@ -62,8 +64,6 @@ CREATE TABLE OrderItems (
 
 
 -- 5. SEGMENTS
-DROP TABLE IF EXISTS Segments;
-
 CREATE TABLE Segments (
     SegmentID INT AUTO_INCREMENT PRIMARY KEY,
     SegmentName VARCHAR(50) NOT NULL,
@@ -73,8 +73,6 @@ CREATE TABLE Segments (
 
 -- 6. CUSTOMER SEGMENTS SNAPSHOT TABLE
 -- Stores RFM analysis results as snapshots over time (allows tracking segment changes)
-DROP TABLE IF EXISTS CustomerSegments;
-
 CREATE TABLE CustomerSegments (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     CustomerID INT NOT NULL,
@@ -83,8 +81,10 @@ CREATE TABLE CustomerSegments (
     R INT NOT NULL,                                  -- Raw Recency value (days since last order)
     F INT NOT NULL,                                  -- Raw Frequency value (total order count)
     M DECIMAL(10,2) NOT NULL,                        -- Raw Monetary value (total amount spent)
-    RFMScore VARCHAR(3) NOT NULL,                    -- Quintile score string (e.g., "555", "321")
+    RFMScore TINYINT NOT NULL,                       -- Simplified overall score 1 (low) - 5 (high)
     FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
         ON DELETE CASCADE,
     FOREIGN KEY (SegmentID) REFERENCES Segments(SegmentID)
 );
+
+SET FOREIGN_KEY_CHECKS = 1;

@@ -14,6 +14,8 @@ public class OrdersPanel extends JPanel {
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JTextField searchCustomerIdField = new JTextField(8);
+    private final JTextField createCustomerIdField = new JTextField(8);
+    private final JTextField createAmountField = new JTextField(8);
 
     public OrdersPanel(OrderService orderService) {
         this.orderService = orderService;
@@ -27,16 +29,14 @@ public class OrdersPanel extends JPanel {
         };
         table = new JTable(tableModel);
 
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(new JScrollPane(table), BorderLayout.CENTER);
-        topPanel.add(buildSearchPanel(), BorderLayout.NORTH);
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+        centerPanel.add(buildSearchPanel(), BorderLayout.NORTH);
+        add(centerPanel, BorderLayout.CENTER);
 
-        add(topPanel, BorderLayout.CENTER);
-        
-        // Note: Order creation removed - customers create orders, not admins
-        JLabel infoLabel = new JLabel("<html><center><b>Orders View Only</b><br>Customers create orders through their interface.<br>Use the search below to view orders by customer ID.</center></html>", SwingConstants.CENTER);
-        infoLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        add(infoLabel, BorderLayout.SOUTH);
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(buildCreatePanel(), BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
     }
 
 
@@ -57,6 +57,26 @@ public class OrdersPanel extends JPanel {
         return panel;
     }
 
+    private JPanel buildCreatePanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.setBorder(BorderFactory.createTitledBorder("Create Order"));
+        panel.add(new JLabel("Customer ID:"));
+        createCustomerIdField.setColumns(8);
+        panel.add(createCustomerIdField);
+        panel.add(new JLabel("Amount:"));
+        createAmountField.setColumns(8);
+        panel.add(createAmountField);
+        JButton createBtn = new JButton("Create");
+        createBtn.addActionListener(e -> createOrder());
+        panel.add(createBtn);
+        JButton clearBtn = new JButton("Clear");
+        clearBtn.addActionListener(e -> {
+            createCustomerIdField.setText("");
+            createAmountField.setText("");
+        });
+        panel.add(clearBtn);
+        return panel;
+    }
 
     private void searchOrders() {
         String customerIdStr = searchCustomerIdField.getText().trim();
@@ -90,6 +110,35 @@ public class OrdersPanel extends JPanel {
         });
     }
 
+    private void createOrder() {
+        String customerIdStr = createCustomerIdField.getText().trim();
+        String amountStr = createAmountField.getText().trim();
+
+        if (customerIdStr.isEmpty() || amountStr.isEmpty()) {
+            showError("Customer ID and amount are required.");
+            return;
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            try {
+                int customerID = Integer.parseInt(customerIdStr);
+                double amount = Double.parseDouble(amountStr);
+                int orderId = orderService.createOrder(customerID, amount);
+                showInfo("Order " + orderId + " created successfully.");
+                createCustomerIdField.setText("");
+                createAmountField.setText("");
+
+                // auto-refresh search results if same customer
+                if (customerIdStr.equals(searchCustomerIdField.getText().trim()) && !customerIdStr.isEmpty()) {
+                    searchOrders();
+                }
+            } catch (NumberFormatException ex) {
+                showError("Invalid number format for customer ID or amount.");
+            } catch (Exception ex) {
+                showError("Failed to create order: " + ex.getMessage());
+            }
+        });
+    }
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);

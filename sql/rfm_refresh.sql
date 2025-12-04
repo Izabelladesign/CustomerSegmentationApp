@@ -21,12 +21,8 @@ SELECT
     q.Frequency,
     q.Monetary,
 
-    -- Industry-standard RFM score: 1-5 quintiles, concatenated as string
-    -- 5 = best, 1 = worst
-    -- Recency: Lower days = better, so reverse NTILE (5 = most recent, 1 = least recent)
-    -- Frequency: Higher count = better (5 = most frequent, 1 = least frequent)
-    -- Monetary: Higher amount = better (5 = highest, 1 = lowest)
-    CONCAT(q.R_Quintile, q.F_Quintile, q.M_Quintile) AS RFMScore
+    -- Simplified overall RFM score (1 = lowest, 5 = highest) using rounded average of the three quintiles
+    ROUND((q.R_Quintile + q.F_Quintile + q.M_Quintile) / 3, 0) AS RFMScore
 
 FROM (
     SELECT
