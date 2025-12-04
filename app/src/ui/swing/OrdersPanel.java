@@ -265,9 +265,11 @@ public class OrdersPanel extends JPanel {
                 int productID = Integer.parseInt(productIdStr);
                 
                 int orderId = orderService.createOrderWithProduct(customerID, productID, quantity);
+                java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String currentDate = dateFormat.format(new java.util.Date());
                 showInfo("Order " + orderId + " created successfully for " + 
                         customerName + " - " + 
-                        productName + " (Qty: " + quantity + ")");
+                        productName + " (Qty: " + quantity + ") on " + currentDate);
                 
                 // Clear all fields
                 createCustomerIdField.setText("");
