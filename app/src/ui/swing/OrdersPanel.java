@@ -1,7 +1,8 @@
 package ui.swing;
 
-import model.Order;
+import model.OrderWithCustomer;
 import service.OrderService;
+import service.CustomerService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -11,17 +12,20 @@ import java.util.List;
 public class OrdersPanel extends JPanel {
 
     private final OrderService orderService;
+    private final CustomerService customerService;
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JTextField searchCustomerIdField = new JTextField(8);
     private final JTextField createCustomerIdField = new JTextField(8);
+    private final JTextField createCustomerNameField = new JTextField(15);
     private final JTextField createAmountField = new JTextField(8);
 
     public OrdersPanel(OrderService orderService) {
         this.orderService = orderService;
+        this.customerService = new CustomerService();
         setLayout(new BorderLayout(12, 12));
 
-        tableModel = new DefaultTableModel(new Object[]{"Order ID", "Customer ID", "Order Date", "Amount"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"Order ID", "Customer ID", "Customer Name", "Order Date", "Amount"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -42,12 +46,15 @@ public class OrdersPanel extends JPanel {
 
     private JPanel buildSearchPanel() {
         JPanel panel = new JPanel(new FlowLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("View Orders by Customer"));
+        panel.setBorder(BorderFactory.createTitledBorder("View Orders"));
         panel.add(new JLabel("Customer ID:"));
         panel.add(searchCustomerIdField);
-        JButton searchBtn = new JButton("Search");
+        JButton searchBtn = new JButton("Search by Customer");
         searchBtn.addActionListener(e -> searchOrders());
         panel.add(searchBtn);
+        JButton viewAllBtn = new JButton("View All Orders");
+        viewAllBtn.addActionListener(e -> viewAllOrders());
+        panel.add(viewAllBtn);
         JButton clearBtn = new JButton("Clear");
         clearBtn.addActionListener(e -> {
             searchCustomerIdField.setText("");
@@ -63,6 +70,14 @@ public class OrdersPanel extends JPanel {
         panel.add(new JLabel("Customer ID:"));
         createCustomerIdField.setColumns(8);
         panel.add(createCustomerIdField);
+        createCustomerIdField.addActionListener(e -> lookupCustomerName());
+        JButton lookupBtn = new JButton("Lookup");
+        lookupBtn.addActionListener(e -> lookupCustomerName());
+        panel.add(lookupBtn);
+        panel.add(new JLabel("Customer Name:"));
+        createCustomerNameField.setColumns(15);
+        createCustomerNameField.setEditable(false);
+        panel.add(createCustomerNameField);
         panel.add(new JLabel("Amount:"));
         createAmountField.setColumns(8);
         panel.add(createAmountField);
@@ -72,6 +87,7 @@ public class OrdersPanel extends JPanel {
         JButton clearBtn = new JButton("Clear");
         clearBtn.addActionListener(e -> {
             createCustomerIdField.setText("");
+            createCustomerNameField.setText("");
             createAmountField.setText("");
         });
         panel.add(clearBtn);
@@ -88,15 +104,16 @@ public class OrdersPanel extends JPanel {
         SwingUtilities.invokeLater(() -> {
             try {
                 int customerID = Integer.parseInt(customerIdStr);
-                List<Order> orders = orderService.getOrdersForCustomer(customerID);
+                List<OrderWithCustomer> orders = orderService.getOrdersForCustomerWithName(customerID);
                 tableModel.setRowCount(0);
                 if (orders.isEmpty()) {
                     showInfo("No orders found for customer " + customerID);
                 } else {
-                    for (Order o : orders) {
+                    for (OrderWithCustomer o : orders) {
                         tableModel.addRow(new Object[]{
                                 o.getOrderID(),
                                 o.getCustomerID(),
+                                o.getCustomerName(),
                                 o.getOrderDate(),
                                 String.format("$%.2f", o.getOrderAmount())
                         });
@@ -106,6 +123,56 @@ public class OrdersPanel extends JPanel {
                 showError("Invalid customer ID format.");
             } catch (Exception ex) {
                 showError("Failed to load orders: " + ex.getMessage());
+            }
+        });
+    }
+
+    private void viewAllOrders() {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                List<OrderWithCustomer> orders = orderService.getAllOrdersWithCustomer();
+                tableModel.setRowCount(0);
+                if (orders.isEmpty()) {
+                    showInfo("No orders found.");
+                } else {
+                    for (OrderWithCustomer o : orders) {
+                        tableModel.addRow(new Object[]{
+                                o.getOrderID(),
+                                o.getCustomerID(),
+                                o.getCustomerName(),
+                                o.getOrderDate(),
+                                String.format("$%.2f", o.getOrderAmount())
+                        });
+                    }
+                }
+            } catch (Exception ex) {
+                showError("Failed to load orders: " + ex.getMessage());
+            }
+        });
+    }
+
+    private void lookupCustomerName() {
+        String customerIdStr = createCustomerIdField.getText().trim();
+        if (customerIdStr.isEmpty()) {
+            createCustomerNameField.setText("");
+            return;
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            try {
+                int customerID = Integer.parseInt(customerIdStr);
+                List<model.Customer> customers = customerService.getAll();
+                for (model.Customer c : customers) {
+                    if (c.getCustomerID() == customerID) {
+                        createCustomerNameField.setText(c.getFirstName() + " " + c.getLastName());
+                        return;
+                    }
+                }
+                createCustomerNameField.setText("Customer not found");
+            } catch (NumberFormatException ex) {
+                createCustomerNameField.setText("Invalid ID");
+            } catch (Exception ex) {
+                createCustomerNameField.setText("Error: " + ex.getMessage());
             }
         });
     }
@@ -128,10 +195,8 @@ public class OrdersPanel extends JPanel {
                 createCustomerIdField.setText("");
                 createAmountField.setText("");
 
-                // auto-refresh search results if same customer
-                if (customerIdStr.equals(searchCustomerIdField.getText().trim()) && !customerIdStr.isEmpty()) {
-                    searchOrders();
-                }
+                // auto-refresh display
+                viewAllOrders();
             } catch (NumberFormatException ex) {
                 showError("Invalid number format for customer ID or amount.");
             } catch (Exception ex) {

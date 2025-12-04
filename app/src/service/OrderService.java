@@ -2,6 +2,7 @@ package service;
 
 import dao.OrderDAO;
 import model.Order;
+import model.OrderWithCustomer;
 
 import java.util.List;
 
@@ -32,5 +33,16 @@ public class OrderService {
 
     public void deleteOrder(int orderID) throws Exception {
         orderDAO.deleteOrder(orderID);
+    }
+
+    public List<OrderWithCustomer> getAllOrdersWithCustomer() throws Exception {
+        return orderDAO.listAllWithCustomer();
+    }
+
+    public List<OrderWithCustomer> getOrdersForCustomerWithName(int customerID) throws Exception {
+        if (customerID <= 0) {
+            throw new IllegalArgumentException("Customer ID must be positive.");
+        }
+        return orderDAO.listByCustomerWithName(customerID);
     }
 }

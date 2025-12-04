@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.Order;
+import model.OrderWithCustomer;
 
 public class OrderDAO {
 
@@ -68,6 +69,68 @@ public class OrderDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, orderID);
             stmt.executeUpdate();
+        }
+    }
+
+    /**
+     * Gets all orders with customer names.
+     */
+    public List<OrderWithCustomer> listAllWithCustomer() throws Exception {
+        String sql = "SELECT o.OrderID, o.CustomerID, o.OrderDate, o.OrderAmount, " +
+                     "CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName " +
+                     "FROM Orders o " +
+                     "JOIN Customers c ON o.CustomerID = c.CustomerID " +
+                     "ORDER BY o.OrderDate DESC";
+
+        try (Connection conn = DBConnection.get();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            List<OrderWithCustomer> orders = new ArrayList<>();
+            while (rs.next()) {
+                OrderWithCustomer o = new OrderWithCustomer(
+                        rs.getInt("OrderID"),
+                        rs.getInt("CustomerID"),
+                        rs.getString("CustomerName"),
+                        rs.getTimestamp("OrderDate"),
+                        rs.getDouble("OrderAmount")
+                );
+                orders.add(o);
+            }
+            return orders;
+        }
+    }
+
+    /**
+     * Gets orders for a specific customer with customer name.
+     */
+    public List<OrderWithCustomer> listByCustomerWithName(int customerID) throws Exception {
+        String sql = "SELECT o.OrderID, o.CustomerID, o.OrderDate, o.OrderAmount, " +
+                     "CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName " +
+                     "FROM Orders o " +
+                     "JOIN Customers c ON o.CustomerID = c.CustomerID " +
+                     "WHERE o.CustomerID = ? " +
+                     "ORDER BY o.OrderDate DESC";
+
+        try (Connection conn = DBConnection.get();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, customerID);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<OrderWithCustomer> orders = new ArrayList<>();
+                while (rs.next()) {
+                    OrderWithCustomer o = new OrderWithCustomer(
+                            rs.getInt("OrderID"),
+                            rs.getInt("CustomerID"),
+                            rs.getString("CustomerName"),
+                            rs.getTimestamp("OrderDate"),
+                            rs.getDouble("OrderAmount")
+                    );
+                    orders.add(o);
+                }
+                return orders;
+            }
         }
     }
 }
