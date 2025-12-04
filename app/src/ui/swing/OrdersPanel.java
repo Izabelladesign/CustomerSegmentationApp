@@ -239,19 +239,25 @@ public class OrdersPanel extends JPanel {
         }
 
         // Default quantity to 1 if not provided
-        int quantity = 1;
+        int quantityValue = 1;
         if (!quantityStr.isEmpty()) {
             try {
-                quantity = Integer.parseInt(quantityStr);
-                if (quantity <= 0) {
+                int parsedQuantity = Integer.parseInt(quantityStr);
+                if (parsedQuantity <= 0) {
                     showError("Quantity must be a positive number.");
                     return;
                 }
+                quantityValue = parsedQuantity;
             } catch (NumberFormatException ex) {
                 showError("Invalid quantity format. Please enter a number.");
                 return;
             }
         }
+
+        // Make quantity final for lambda expression
+        final int quantity = quantityValue;
+        final String customerName = createCustomerNameField.getText();
+        final String productName = createProductNameField.getText();
 
         SwingUtilities.invokeLater(() -> {
             try {
@@ -260,8 +266,8 @@ public class OrdersPanel extends JPanel {
                 
                 int orderId = orderService.createOrderWithProduct(customerID, productID, quantity);
                 showInfo("Order " + orderId + " created successfully for " + 
-                        createCustomerNameField.getText() + " - " + 
-                        createProductNameField.getText() + " (Qty: " + quantity + ")");
+                        customerName + " - " + 
+                        productName + " (Qty: " + quantity + ")");
                 
                 // Clear all fields
                 createCustomerIdField.setText("");
