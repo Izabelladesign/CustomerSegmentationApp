@@ -3,6 +3,7 @@ package ui.swing;
 import model.OrderWithCustomer;
 import service.OrderService;
 import service.CustomerService;
+import service.ProductService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -13,19 +14,23 @@ public class OrdersPanel extends JPanel {
 
     private final OrderService orderService;
     private final CustomerService customerService;
+    private final ProductService productService;
     private final DefaultTableModel tableModel;
     private final JTable table;
     private final JTextField searchCustomerIdField = new JTextField(8);
     private final JTextField createCustomerIdField = new JTextField(8);
     private final JTextField createCustomerNameField = new JTextField(15);
-    private final JTextField createAmountField = new JTextField(8);
+    private final JTextField createProductIdField = new JTextField(8);
+    private final JTextField createProductNameField = new JTextField(15);
+    private final JTextField createQuantityField = new JTextField(5);
 
     public OrdersPanel(OrderService orderService) {
         this.orderService = orderService;
         this.customerService = new CustomerService();
+        this.productService = new ProductService();
         setLayout(new BorderLayout(12, 12));
 
-        tableModel = new DefaultTableModel(new Object[]{"Order ID", "Customer ID", "Customer Name", "Order Date", "Amount"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"Order ID", "Customer ID", "Customer Name", "Product Info", "Order Date", "Amount"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -67,20 +72,36 @@ public class OrdersPanel extends JPanel {
     private JPanel buildCreatePanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBorder(BorderFactory.createTitledBorder("Create Order"));
+        
+        // Customer section
         panel.add(new JLabel("Customer ID:"));
         createCustomerIdField.setColumns(8);
         panel.add(createCustomerIdField);
         createCustomerIdField.addActionListener(e -> lookupCustomerName());
-        JButton lookupBtn = new JButton("Lookup");
-        lookupBtn.addActionListener(e -> lookupCustomerName());
-        panel.add(lookupBtn);
+        JButton lookupCustomerBtn = new JButton("Lookup");
+        lookupCustomerBtn.addActionListener(e -> lookupCustomerName());
+        panel.add(lookupCustomerBtn);
         panel.add(new JLabel("Customer Name:"));
         createCustomerNameField.setColumns(15);
         createCustomerNameField.setEditable(false);
         panel.add(createCustomerNameField);
-        panel.add(new JLabel("Amount:"));
-        createAmountField.setColumns(8);
-        panel.add(createAmountField);
+        
+        // Product section
+        panel.add(new JLabel("Product ID:"));
+        createProductIdField.setColumns(8);
+        panel.add(createProductIdField);
+        createProductIdField.addActionListener(e -> lookupProductName());
+        JButton lookupProductBtn = new JButton("Lookup");
+        lookupProductBtn.addActionListener(e -> lookupProductName());
+        panel.add(lookupProductBtn);
+        panel.add(new JLabel("Product Name:"));
+        createProductNameField.setColumns(15);
+        createProductNameField.setEditable(false);
+        panel.add(createProductNameField);
+        panel.add(new JLabel("Quantity:"));
+        createQuantityField.setColumns(5);
+        panel.add(createQuantityField);
+        
         JButton createBtn = new JButton("Create");
         createBtn.addActionListener(e -> createOrder());
         panel.add(createBtn);
@@ -88,7 +109,9 @@ public class OrdersPanel extends JPanel {
         clearBtn.addActionListener(e -> {
             createCustomerIdField.setText("");
             createCustomerNameField.setText("");
-            createAmountField.setText("");
+            createProductIdField.setText("");
+            createProductNameField.setText("");
+            createQuantityField.setText("");
         });
         panel.add(clearBtn);
         return panel;
@@ -114,6 +137,7 @@ public class OrdersPanel extends JPanel {
                                 o.getOrderID(),
                                 o.getCustomerID(),
                                 o.getCustomerName(),
+                                o.getProductInfo().isEmpty() ? "No products" : o.getProductInfo(),
                                 o.getOrderDate(),
                                 String.format("$%.2f", o.getOrderAmount())
                         });
@@ -140,6 +164,7 @@ public class OrdersPanel extends JPanel {
                                 o.getOrderID(),
                                 o.getCustomerID(),
                                 o.getCustomerName(),
+                                o.getProductInfo().isEmpty() ? "No products" : o.getProductInfo(),
                                 o.getOrderDate(),
                                 String.format("$%.2f", o.getOrderAmount())
                         });
@@ -177,28 +202,60 @@ public class OrdersPanel extends JPanel {
         });
     }
 
+    private void lookupProductName() {
+        String productIdStr = createProductIdField.getText().trim();
+        if (productIdStr.isEmpty()) {
+            createProductNameField.setText("");
+            return;
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            try {
+                int productID = Integer.parseInt(productIdStr);
+                List<model.Product> products = productService.getAll();
+                for (model.Product p : products) {
+                    if (p.getProductID() == productID) {
+                        createProductNameField.setText(p.getProductName() + " ($" + String.format("%.2f", p.getProductPrice()) + ")");
+                        return;
+                    }
+                }
+                createProductNameField.setText("Product not found");
+            } catch (NumberFormatException ex) {
+                createProductNameField.setText("Invalid ID");
+            } catch (Exception ex) {
+                createProductNameField.setText("Error: " + ex.getMessage());
+            }
+        });
+    }
+
     private void createOrder() {
         String customerIdStr = createCustomerIdField.getText().trim();
-        String amountStr = createAmountField.getText().trim();
+        String productIdStr = createProductIdField.getText().trim();
+        String quantityStr = createQuantityField.getText().trim();
 
-        if (customerIdStr.isEmpty() || amountStr.isEmpty()) {
-            showError("Customer ID and amount are required.");
+        if (customerIdStr.isEmpty() || productIdStr.isEmpty() || quantityStr.isEmpty()) {
+            showError("Customer ID, Product ID, and Quantity are required.");
             return;
         }
 
         SwingUtilities.invokeLater(() -> {
             try {
                 int customerID = Integer.parseInt(customerIdStr);
-                double amount = Double.parseDouble(amountStr);
-                int orderId = orderService.createOrder(customerID, amount);
+                int productID = Integer.parseInt(productIdStr);
+                int quantity = Integer.parseInt(quantityStr);
+                
+                int orderId = orderService.createOrderWithProduct(customerID, productID, quantity);
                 showInfo("Order " + orderId + " created successfully.");
                 createCustomerIdField.setText("");
-                createAmountField.setText("");
+                createCustomerNameField.setText("");
+                createProductIdField.setText("");
+                createProductNameField.setText("");
+                createQuantityField.setText("");
 
                 // auto-refresh display
                 viewAllOrders();
             } catch (NumberFormatException ex) {
-                showError("Invalid number format for customer ID or amount.");
+                showError("Invalid number format for customer ID, product ID, or quantity.");
             } catch (Exception ex) {
                 showError("Failed to create order: " + ex.getMessage());
             }

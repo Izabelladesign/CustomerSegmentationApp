@@ -1,8 +1,11 @@
 package service;
 
 import dao.OrderDAO;
+import dao.OrderItemDAO;
+import dao.ProductDAO;
 import model.Order;
 import model.OrderWithCustomer;
+import model.Product;
 
 import java.util.List;
 
@@ -44,5 +47,39 @@ public class OrderService {
             throw new IllegalArgumentException("Customer ID must be positive.");
         }
         return orderDAO.listByCustomerWithName(customerID);
+    }
+
+    /**
+     * Creates an order with a product. Calculates order amount from product price and quantity.
+     */
+    public int createOrderWithProduct(int customerID, int productID, int quantity) throws Exception {
+        if (customerID <= 0) {
+            throw new IllegalArgumentException("Customer ID must be positive.");
+        }
+        if (productID <= 0) {
+            throw new IllegalArgumentException("Product ID must be positive.");
+        }
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive.");
+        }
+
+        // Get product to get its price
+        ProductDAO productDAO = new ProductDAO();
+        Product product = productDAO.findById(productID);
+        if (product == null) {
+            throw new IllegalArgumentException("Product with ID " + productID + " not found.");
+        }
+
+        // Calculate order amount
+        double orderAmount = product.getProductPrice() * quantity;
+
+        // Create the order
+        int orderID = orderDAO.insertOrder(customerID, orderAmount);
+
+        // Create the order item
+        OrderItemDAO itemDAO = new OrderItemDAO();
+        itemDAO.insertItem(orderID, productID, quantity, product.getProductPrice());
+
+        return orderID;
     }
 }

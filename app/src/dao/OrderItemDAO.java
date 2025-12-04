@@ -2,6 +2,7 @@ package dao;
 
 import db.DBConnection;
 import model.OrderItem;
+import model.OrderItemWithProduct;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -65,6 +66,40 @@ public class OrderItemDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, orderItemID);
             stmt.executeUpdate();
+        }
+    }
+
+    /**
+     * Gets order items with product names for a specific order.
+     */
+    public List<OrderItemWithProduct> listByOrderWithProduct(int orderID) throws Exception {
+        String sql = "SELECT oi.OrderItemID, oi.OrderID, oi.ProductID, oi.Quantity, oi.UnitPrice, oi.LineTotal, " +
+                     "p.ProductName " +
+                     "FROM OrderItems oi " +
+                     "JOIN Products p ON oi.ProductID = p.ProductID " +
+                     "WHERE oi.OrderID = ? " +
+                     "ORDER BY oi.OrderItemID";
+
+        try (Connection conn = DBConnection.get();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderID);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<OrderItemWithProduct> items = new ArrayList<>();
+                while (rs.next()) {
+                    OrderItemWithProduct item = new OrderItemWithProduct(
+                            rs.getInt("OrderItemID"),
+                            rs.getInt("OrderID"),
+                            rs.getInt("ProductID"),
+                            rs.getString("ProductName"),
+                            rs.getInt("Quantity"),
+                            rs.getDouble("UnitPrice"),
+                            rs.getDouble("LineTotal")
+                    );
+                    items.add(item);
+                }
+                return items;
+            }
         }
     }
 }

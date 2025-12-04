@@ -1,11 +1,13 @@
 package dao;
 
 import db.DBConnection;
+import dao.OrderItemDAO;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.Order;
 import model.OrderWithCustomer;
+import model.OrderItemWithProduct;
 
 public class OrderDAO {
 
@@ -73,7 +75,7 @@ public class OrderDAO {
     }
 
     /**
-     * Gets all orders with customer names.
+     * Gets all orders with customer names and product information.
      */
     public List<OrderWithCustomer> listAllWithCustomer() throws Exception {
         String sql = "SELECT o.OrderID, o.CustomerID, o.OrderDate, o.OrderAmount, " +
@@ -87,14 +89,32 @@ public class OrderDAO {
              ResultSet rs = stmt.executeQuery()) {
 
             List<OrderWithCustomer> orders = new ArrayList<>();
+            OrderItemDAO itemDAO = new OrderItemDAO();
+            
             while (rs.next()) {
+                int orderID = rs.getInt("OrderID");
                 OrderWithCustomer o = new OrderWithCustomer(
-                        rs.getInt("OrderID"),
+                        orderID,
                         rs.getInt("CustomerID"),
                         rs.getString("CustomerName"),
                         rs.getTimestamp("OrderDate"),
                         rs.getDouble("OrderAmount")
                 );
+                
+                // Get product information for this order
+                List<OrderItemWithProduct> items = itemDAO.listByOrderWithProduct(orderID);
+                StringBuilder productInfo = new StringBuilder();
+                for (int i = 0; i < items.size(); i++) {
+                    OrderItemWithProduct item = items.get(i);
+                    if (i > 0) productInfo.append(", ");
+                    productInfo.append(item.getProductID())
+                               .append(": ")
+                               .append(item.getProductName())
+                               .append(" (Qty: ")
+                               .append(item.getQuantity())
+                               .append(")");
+                }
+                o.setProductInfo(productInfo.toString());
                 orders.add(o);
             }
             return orders;
@@ -102,7 +122,7 @@ public class OrderDAO {
     }
 
     /**
-     * Gets orders for a specific customer with customer name.
+     * Gets orders for a specific customer with customer name and product information.
      */
     public List<OrderWithCustomer> listByCustomerWithName(int customerID) throws Exception {
         String sql = "SELECT o.OrderID, o.CustomerID, o.OrderDate, o.OrderAmount, " +
@@ -119,14 +139,32 @@ public class OrderDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 List<OrderWithCustomer> orders = new ArrayList<>();
+                OrderItemDAO itemDAO = new OrderItemDAO();
+                
                 while (rs.next()) {
+                    int orderID = rs.getInt("OrderID");
                     OrderWithCustomer o = new OrderWithCustomer(
-                            rs.getInt("OrderID"),
+                            orderID,
                             rs.getInt("CustomerID"),
                             rs.getString("CustomerName"),
                             rs.getTimestamp("OrderDate"),
                             rs.getDouble("OrderAmount")
                     );
+                    
+                    // Get product information for this order
+                    List<OrderItemWithProduct> items = itemDAO.listByOrderWithProduct(orderID);
+                    StringBuilder productInfo = new StringBuilder();
+                    for (int i = 0; i < items.size(); i++) {
+                        OrderItemWithProduct item = items.get(i);
+                        if (i > 0) productInfo.append(", ");
+                        productInfo.append(item.getProductID())
+                                   .append(": ")
+                                   .append(item.getProductName())
+                                   .append(" (Qty: ")
+                                   .append(item.getQuantity())
+                                   .append(")");
+                    }
+                    o.setProductInfo(productInfo.toString());
                     orders.add(o);
                 }
                 return orders;

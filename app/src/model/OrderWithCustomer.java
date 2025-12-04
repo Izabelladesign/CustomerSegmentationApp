@@ -11,6 +11,7 @@ public class OrderWithCustomer {
     private String customerName;
     private Timestamp orderDate;
     private double orderAmount;
+    private String productInfo; // Format: "ProductID: ProductName (Qty: X), ..."
 
     public OrderWithCustomer(int orderID, int customerID, String customerName, Timestamp orderDate, double orderAmount) {
         this.orderID = orderID;
@@ -18,6 +19,16 @@ public class OrderWithCustomer {
         this.customerName = customerName;
         this.orderDate = orderDate;
         this.orderAmount = orderAmount;
+        this.productInfo = "";
+    }
+
+    public OrderWithCustomer(int orderID, int customerID, String customerName, Timestamp orderDate, double orderAmount, String productInfo) {
+        this.orderID = orderID;
+        this.customerID = customerID;
+        this.customerName = customerName;
+        this.orderDate = orderDate;
+        this.orderAmount = orderAmount;
+        this.productInfo = productInfo != null ? productInfo : "";
     }
 
     public int getOrderID() {
@@ -38,6 +49,14 @@ public class OrderWithCustomer {
 
     public double getOrderAmount() {
         return orderAmount;
+    }
+
+    public String getProductInfo() {
+        return productInfo;
+    }
+
+    public void setProductInfo(String productInfo) {
+        this.productInfo = productInfo != null ? productInfo : "";
     }
 }
 
