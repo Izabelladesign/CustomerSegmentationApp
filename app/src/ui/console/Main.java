@@ -37,9 +37,8 @@ public class Main {
             System.out.println("4. Add Product");
             System.out.println("5. Recompute RFM Segments");
             System.out.println("6. View Customer Segments");
-            System.out.println("7. Add Order (simple)");
-            System.out.println("8. View Orders for Customer");
-            System.out.println("9. View Revenue by Segment");
+            System.out.println("7. View Orders for Customer");
+            System.out.println("8. View Revenue by Segment");
             System.out.println("0. Exit");
             System.out.print("Choose an option: ");
 
@@ -71,12 +70,9 @@ public class Main {
                         viewCustomerSegments();
                         break;
                     case 7:
-                        addOrder(sc);
-                        break;
-                    case 8:
                         viewOrdersForCustomer(sc);
                         break;
-                    case 9:
+                    case 8:
                         viewRevenueBySegment();
                         break;
                     case 0:
@@ -153,19 +149,6 @@ public class Main {
             }
             System.out.println("\nTotal: " + segments.size() + " customer segment(s)");
         }
-    }
-
-    private static void addOrder(Scanner sc) throws Exception {
-        System.out.println("\n--- Add Order (simple) ---");
-        System.out.print("Customer ID: ");
-        int customerID = Integer.parseInt(sc.nextLine());
-        System.out.print("Product ID: ");
-        int productID = Integer.parseInt(sc.nextLine());
-        System.out.print("Quantity: ");
-        int qty = Integer.parseInt(sc.nextLine());
-
-        int orderID = orderService.createSimpleOrder(customerID, productID, qty);
-        System.out.println("Order created with OrderID = " + orderID);
     }
 
     private static void viewOrdersForCustomer(Scanner sc) throws Exception {

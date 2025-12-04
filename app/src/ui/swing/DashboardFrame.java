@@ -1,14 +1,13 @@
 package ui.swing;
 
-import service.CustomerService;
-import service.ProductService;
-import service.OrderService;
-import service.RfmService;
-import service.ReportService;
-
+import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
-import java.awt.BorderLayout;
+import service.CustomerService;
+import service.OrderService;
+import service.ProductService;
+import service.ReportService;
+import service.RfmService;
 
 /**
  * Main application window that hosts the different feature panels.
@@ -35,7 +34,7 @@ public class DashboardFrame extends JFrame {
 
         tabs.addTab("Customers", new CustomersPanel(customerService));
         tabs.addTab("Products", new ProductsPanel(productService));
-        tabs.addTab("Orders", new OrdersPanel(orderService, customerService, productService));
+        tabs.addTab("Orders", new OrdersPanel(orderService));
         tabs.addTab("RFM Segments", new RFMPanel(rfmService));
         tabs.addTab("Reports", new ReportsPanel(reportService));
 

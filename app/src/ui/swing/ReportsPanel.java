@@ -1,12 +1,11 @@
 package ui.swing;
 
-import model.RevenueBySegment;
-import service.ReportService;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import model.RevenueBySegment;
+import service.ReportService;
 
 public class ReportsPanel extends JPanel {
 

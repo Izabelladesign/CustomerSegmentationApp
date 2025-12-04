@@ -5,11 +5,17 @@ public class Product {
     private int productID;
     private String productName;
     private double productPrice;  // Correct field name
+    private int inventory;  // NOT NULL with default 0
 
     public Product(int productID, String productName, double productPrice) {
+        this(productID, productName, productPrice, 0);
+    }
+
+    public Product(int productID, String productName, double productPrice, int inventory) {
         this.productID = productID;
         this.productName = productName;
         this.productPrice = productPrice;
+        this.inventory = inventory;
     }
 
     public int getProductID() {
@@ -30,9 +36,17 @@ public class Product {
         return productPrice;
     }
 
+    public int getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(int inventory) {
+        this.inventory = inventory;
+    }
+
     @Override
     public String toString() {
-        return productID + " - " + productName + " ($" + productPrice + ")";
+        return productID + " - " + productName + " ($" + productPrice + ") [Stock: " + inventory + "]";
     }
 
 }

@@ -1,11 +1,10 @@
 package dao;
 
 import db.DBConnection;
-import model.Order;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.Order;
 
 public class OrderDAO {
 

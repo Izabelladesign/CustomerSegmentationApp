@@ -25,4 +25,8 @@ public class CustomerService {
     public void deleteCustomer(int id) throws Exception {
         dao.delete(id);
     }
+
+    public List<Customer> getBySegment(int segmentID) throws Exception {
+        return dao.listBySegment(segmentID);
+    }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <!-- Your Java source code -->
+    <classpathentry kind="src" path="app/src"/>
+
+    <!-- MySQL JDBC driver -->
+    <classpathentry kind="lib" path="app/lib/mysql-connector-j-9.5.0.jar"/>
+
+    <!-- JDK (VS Code / Eclipse-managed) -->
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+
+    <!-- Compiled .class output folder -->
+    <classpathentry kind="output" path="bin"/>
+</classpath>

@@ -2,8 +2,8 @@ package dao;
 
 import db.DBConnection;
 import java.sql.*;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import model.Customer;
 
 public class CustomerDAO {
@@ -70,6 +70,37 @@ public class CustomerDAO {
 
             stmt.setInt(1, customerID);
             stmt.executeUpdate();
+        }
+    }
+
+    /**
+     * Gets customers by segment ID.
+     */
+    public List<Customer> listBySegment(int segmentID) throws Exception {
+        String sql = "SELECT DISTINCT c.* FROM Customers c " +
+                     "JOIN CustomerSegments cs ON c.CustomerID = cs.CustomerID " +
+                     "WHERE cs.SegmentID = ? " +
+                     "ORDER BY c.CustomerID";
+
+        try (Connection conn = DBConnection.get();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, segmentID);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<Customer> list = new ArrayList<>();
+                while (rs.next()) {
+                    Customer c = new Customer(
+                            rs.getInt("CustomerID"),
+                            rs.getString("FirstName"),
+                            rs.getString("LastName"),
+                            rs.getString("CustomerEmail"),
+                            rs.getString("CustomerStatus")
+                    );
+                    list.add(c);
+                }
+                return list;
+            }
         }
     }
 }

@@ -1,93 +1,133 @@
 USE segdb;
 
--- Insert customers (15 records)
+-- Insert customers (15 entries)
 INSERT INTO Customers (FirstName, LastName, CustomerEmail, CustomerStatus)
 VALUES
-('Zara', 'Rahim', 'zara@example.com', 'Active'),
-('Arianna', 'Grande', 'arianna@example.com', 'Active'),
-('Maseena', 'Usman', 'maseena@example.com', 'Inactive'),
-('Yemimah', 'Raza', 'yemimah@example.com', 'Active'),
-('Aiyanna', 'Muniz', 'aiyanna@example.com', 'Active'),
-('Jonathan', 'Bailey', 'jonathan.bailey@example.com', 'Active'),
-('Carlos', 'Sainz', 'carlos.sainz@example.com', 'Active'),
-('Charles', 'LeClerc', 'charles.leclerc@example.com', 'Active'),
-('Alex', 'Albon', 'alex.albon@example.com', 'Inactive'),
-('Lewis', 'Hamilton', 'lewis.hamilton@example.com', 'Active'),
-('AJ', 'Doser', 'aj.doser@example.com', 'Active'),
-('John', 'Doe', 'john.doe@example.com', 'Inactive'),
-('Zayn', 'Malik', 'zayn.malik@example.com', 'Active'),
-('Bella', 'Sawn', 'bella.sawn@example.com', 'Inactive'),
-('Edward', 'Cullen', 'edward.cullen@example.com', 'Active');
+('Zara', 'Rahim', 'zara@gmail.com', 'Active'),
+('Arianna', 'Grande', 'arianna@gmail.com', 'Active'),
+('Maseena', 'Usman', 'maseena@gmail.com', 'Inactive'),
+('Yemimah', 'Raza', 'yemimah@gmail.com', 'Active'),
+('Aiyanna', 'Muniz', 'aiyanna@gmail.com', 'Active'),
+('Jonathan', 'Bailey', 'jonathan.bailey@gmail.com', 'Active'),
+('Carlos', 'Sainz', 'carlos.sainz@gmail.com', 'Active'),
+('Charles', 'LeClerc', 'charles.leclerc@gmail.com', 'Active'),
+('Alex', 'Albon', 'alex.albon@gmail.com', 'Inactive'),
+('Lewis', 'Hamilton', 'lewis.hamilton@gmail.com', 'Active'),
+('AJ', 'Doser', 'aj.doser@gmail.com', 'Active'),
+('John', 'Doe', 'john.doe@gmail.com', 'Inactive'),
+('Zayn', 'Malik', 'zayn.malik@gmail.com', 'Active'),
+('Bella', 'Sawn', 'bella.sawn@gmail.com', 'Inactive'),
+('Edward', 'Cullen', 'edward.cullen@gmail.com', 'Active');
 
--- Insert products (15 records)
-INSERT INTO Products (ProductName, ProductPrice)
+-- Insert products (15 entries)
+INSERT INTO Products (ProductName, ProductPrice, Inventory)
 VALUES
-('Laptop', 899.99),
-('Wireless Mouse', 29.99),
-('Phone Case', 14.99),
-('Desk Lamp', 49.99),
-('USB-C Cable', 9.99),
-('Bluetooth Speaker', 79.99),
-('Noise Cancelling Headphones', 199.99),
-('Smartwatch', 249.99),
-('Portable Charger', 39.99),
-('Gaming Keyboard', 129.99),
-('Monitor Stand', 59.99),
-('External SSD', 149.99),
-('Office Chair', 299.99),
-('Graphic Tablet', 219.99),
-('Webcam', 89.99);
+('Laptop', 899.99, 10),
+('Wireless Mouse', 29.99, 50),
+('Phone Case', 14.99, 100),
+('Desk Lamp', 49.99, 30),
+('USB-C Cable', 9.99, 200),
+('Bluetooth Speaker', 79.99, 25),
+('Noise Cancelling Headphones', 199.99, 15),
+('Smartwatch', 249.99, 20),
+('Portable Charger', 39.99, 40),
+('Gaming Keyboard', 129.99, 18),
+('Monitor Stand', 59.99, 35),
+('External SSD', 149.99, 22),
+('Office Chair', 299.99, 12),
+('Graphic Tablet', 219.99, 8),
+('Webcam', 89.99, 28);
 
--- Insert orders (15 records)
+-- Insert orders with varied dates for segment diversity
+-- Recent orders (0-60 days): Customers 1, 2, 3, 4, 5
+-- Medium orders (60-180 days): Customers 6, 7, 8, 9, 10
+-- Old orders (180+ days): Customers 11, 12, 13, 14, 15
+-- Some customers have multiple orders for frequency variety
+
 INSERT INTO Orders (CustomerID, OrderDate, OrderAmount)
 VALUES
-(1, '2025-01-15', 939.97),
-(2, '2025-02-03', 29.99),
-(3, '2025-01-20', 49.99),
-(4, '2025-03-05', 264.98),
-(5, '2025-02-10', 79.99),
-(6, '2025-02-14', 1099.98),
-(7, '2025-03-01', 49.98),
-(8, '2025-01-25', 189.98),
-(9, '2025-02-18', 299.99),
-(10, '2025-03-12', 399.98),
-(11, '2025-01-30', 24.98),
-(12, '2025-02-22', 299.98),
-(13, '2025-03-03', 899.99),
-(14, '2025-03-08', 239.98),
-(15, '2025-03-15', 149.98);
+-- Recent, high-frequency customers (Loyal/High-Value segments)
+(1, DATE_SUB(CURRENT_DATE, INTERVAL 15 DAY), 939.97),
+(1, DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY), 199.99),
+(1, DATE_SUB(CURRENT_DATE, INTERVAL 45 DAY), 149.99),
+(2, DATE_SUB(CURRENT_DATE, INTERVAL 10 DAY), 29.99),
+(2, DATE_SUB(CURRENT_DATE, INTERVAL 25 DAY), 79.99),
+(3, DATE_SUB(CURRENT_DATE, INTERVAL 20 DAY), 49.99),
+(3, DATE_SUB(CURRENT_DATE, INTERVAL 35 DAY), 99.99),
+(4, DATE_SUB(CURRENT_DATE, INTERVAL 5 DAY), 264.98),
+(4, DATE_SUB(CURRENT_DATE, INTERVAL 40 DAY), 199.99),
+(5, DATE_SUB(CURRENT_DATE, INTERVAL 12 DAY), 79.99),
 
--- Insert order items (20 records, at least one per order)
+-- Medium recency customers (At-Risk/Returning segments)
+(6, DATE_SUB(CURRENT_DATE, INTERVAL 90 DAY), 1099.98),
+(6, DATE_SUB(CURRENT_DATE, INTERVAL 100 DAY), 299.99),
+(7, DATE_SUB(CURRENT_DATE, INTERVAL 75 DAY), 49.98),
+(8, DATE_SUB(CURRENT_DATE, INTERVAL 110 DAY), 189.98),
+(8, DATE_SUB(CURRENT_DATE, INTERVAL 120 DAY), 129.99),
+(9, DATE_SUB(CURRENT_DATE, INTERVAL 95 DAY), 299.99),
+(10, DATE_SUB(CURRENT_DATE, INTERVAL 85 DAY), 399.98),
+
+-- Old orders (Churned segment)
+(11, DATE_SUB(CURRENT_DATE, INTERVAL 200 DAY), 24.98),
+(12, DATE_SUB(CURRENT_DATE, INTERVAL 250 DAY), 299.98),
+(13, DATE_SUB(CURRENT_DATE, INTERVAL 220 DAY), 899.99),
+(14, DATE_SUB(CURRENT_DATE, INTERVAL 280 DAY), 239.98),
+(15, DATE_SUB(CURRENT_DATE, INTERVAL 300 DAY), 149.98);
+
+-- Insert order items (updated to match new orders)
 INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice)
 VALUES
+-- Customer 1 orders (3 orders)
 (1, 1, 1, 899.99),
 (1, 2, 1, 29.99),
 (1, 5, 1, 9.99),
-(2, 2, 1, 29.99),
-(3, 4, 1, 49.99),
-(4, 8, 1, 249.99),a
-(4, 3, 1, 14.99),
+(2, 7, 1, 199.99),
+(3, 12, 1, 149.99),
+-- Customer 2 orders (2 orders)
+(4, 2, 1, 29.99),
 (5, 6, 1, 79.99),
-(6, 1, 1, 899.99),
-(6, 7, 1, 199.99),
-(7, 9, 1, 39.99),
-(7, 5, 1, 9.99),
-(8, 10, 1, 129.99),
-(8, 11, 1, 59.99),
-(9, 13, 1, 299.99),
-(10, 12, 1, 149.99),
-(10, 8, 1, 249.99),
-(11, 3, 1, 14.99),
-(11, 5, 1, 9.99),
-(12, 14, 1, 219.99),
-(12, 6, 1, 79.99),
-(13, 1, 1, 899.99),
-(14, 7, 1, 199.99),
-(14, 9, 1, 39.99),
-(15, 15, 1, 89.99),
-(15, 11, 1, 59.99);
+-- Customer 3 orders (2 orders)
+(6, 4, 1, 49.99),
+(7, 6, 1, 79.99),
+(7, 3, 1, 14.99),
+-- Customer 4 orders (2 orders)
+(8, 8, 1, 249.99),
+(8, 3, 1, 14.99),
+(9, 7, 1, 199.99),
+-- Customer 5 order
+(10, 6, 1, 79.99),
+-- Customer 6 orders (2 orders)
+(11, 1, 1, 899.99),
+(11, 7, 1, 199.99),
+(12, 13, 1, 299.99),
+-- Customer 7 order
+(13, 9, 1, 39.99),
+(13, 5, 1, 9.99),
+-- Customer 8 orders (2 orders)
+(14, 10, 1, 129.99),
+(14, 11, 1, 59.99),
+(15, 10, 1, 129.99),
+-- Customer 9 order
+(16, 13, 1, 299.99),
+-- Customer 10 order
+(17, 12, 1, 149.99),
+(17, 8, 1, 249.99),
+-- Customer 11 order (old)
+(18, 3, 1, 14.99),
+(18, 5, 1, 9.99),
+-- Customer 12 order (old)
+(19, 14, 1, 219.99),
+(19, 6, 1, 79.99),
+-- Customer 13 order (old)
+(20, 1, 1, 899.99),
+-- Customer 14 order (old)
+(21, 7, 1, 199.99),
+(21, 9, 1, 39.99),
+-- Customer 15 order (old)
+(22, 15, 1, 89.99),
+(22, 11, 1, 59.99);
 
--- Insert segments (15 records)
+-- Insert segments (15 entries)
 INSERT INTO Segments (SegmentID, SegmentName, Description) VALUES
 (1, 'Loyal', 'Frequent and recent purchasers with strong activity'),
 (2, 'New', 'Recently joined customers'),
@@ -105,21 +145,5 @@ INSERT INTO Segments (SegmentID, SegmentName, Description) VALUES
 (14, 'Referred', 'Customers gained through referrals'),
 (15, 'Upsell', 'Customers targeted for cross-sell and upsell');
 
--- Insert customer segments snapshot (15 records)
-INSERT INTO CustomerSegments (CustomerID, SegmentID, AsOfDate, R, F, M, RFMScore)
-VALUES
-(1, 5, '2025-03-31', 15, 6, 1520.50, 111),
-(2, 2, '2025-03-31', 10, 2, 120.45, 221),
-(3, 3, '2025-03-31', 95, 1, 49.99, 332),
-(4, 1, '2025-03-31', 25, 4, 540.96, 123),
-(5, 8, '2025-03-31', 40, 3, 230.97, 223),
-(6, 7, '2025-03-31', 12, 5, 1800.40, 112),
-(7, 10, '2025-03-31', 55, 2, 89.97, 233),
-(8, 1, '2025-03-31', 18, 4, 760.15, 122),
-(9, 12, '2025-03-31', 180, 1, 299.99, 433),
-(10, 5, '2025-03-31', 22, 5, 999.50, 121),
-(11, 9, '2025-03-31', 8, 1, 24.98, 311),
-(12, 6, '2025-03-31', 35, 3, 450.25, 222),
-(13, 13, '2025-03-31', 5, 7, 2100.00, 111),
-(14, 4, '2025-03-31', 200, 1, 239.98, 443),
-(15, 14, '2025-03-31', 60, 2, 310.75, 233);
+-- Note: CustomerSegments are now calculated dynamically via rfm_refresh.sql
+-- Run "Recompute RFM Segments" in the GUI to populate this table

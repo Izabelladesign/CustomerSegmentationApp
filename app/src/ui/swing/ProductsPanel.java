@@ -15,12 +15,13 @@ public class ProductsPanel extends JPanel {
     private final JTextField idField = new JTextField(8);
     private final JTextField nameField = new JTextField(20);
     private final JTextField priceField = new JTextField(12);
+    private final JTextField inventoryField = new JTextField(12);
 
     public ProductsPanel(ProductService productService) {
         this.productService = productService;
         setLayout(new BorderLayout(12, 12));
 
-        tableModel = new DefaultTableModel(new Object[]{"ID", "Product Name", "Price"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"ID", "Product Name", "Price", "Inventory"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -36,7 +37,8 @@ public class ProductsPanel extends JPanel {
                 int row = table.getSelectedRow();
                 idField.setText(tableModel.getValueAt(row, 0).toString());
                 nameField.setText(tableModel.getValueAt(row, 1).toString());
-                priceField.setText(tableModel.getValueAt(row, 2).toString());
+                priceField.setText(tableModel.getValueAt(row, 2).toString().replace("$", ""));
+                inventoryField.setText(tableModel.getValueAt(row, 3).toString());
             }
         });
 
@@ -68,6 +70,11 @@ public class ProductsPanel extends JPanel {
         gbc.gridx = 1;
         panel.add(priceField, gbc);
 
+        gbc.gridx = 0; gbc.gridy = 3;
+        panel.add(new JLabel("Inventory"), gbc);
+        gbc.gridx = 1;
+        panel.add(inventoryField, gbc);
+
         JPanel buttonPanel = new JPanel();
         JButton addBtn = new JButton("Add Product");
         addBtn.addActionListener(e -> addProduct());
@@ -89,7 +96,7 @@ public class ProductsPanel extends JPanel {
         refreshBtn.addActionListener(e -> loadProducts());
         buttonPanel.add(refreshBtn);
 
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0; gbc.gridy = 4;
         gbc.gridwidth = 2;
         panel.add(buttonPanel, gbc);
 
@@ -105,7 +112,8 @@ public class ProductsPanel extends JPanel {
                     tableModel.addRow(new Object[]{
                             p.getProductID(),
                             p.getProductName(),
-                            String.format("$%.2f", p.getProductPrice())
+                            String.format("$%.2f", p.getProductPrice()),
+                            p.getInventory()
                     });
                 }
             } catch (Exception ex) {
@@ -117,20 +125,44 @@ public class ProductsPanel extends JPanel {
     private void addProduct() {
         String name = nameField.getText().trim();
         String priceStr = priceField.getText().trim();
+        String invStr = inventoryField.getText().trim();
 
-        if (name.isEmpty() || priceStr.isEmpty()) {
-            showError("All fields are required.");
+        if (name.isEmpty() || priceStr.isEmpty() || invStr.isEmpty()) {
+            showError("Name, Price, and Inventory are required.");
             return;
         }
-
         try {
             double price = Double.parseDouble(priceStr);
-            productService.addProduct(name, price);
+            int inventory = Integer.parseInt(invStr);
+        
+            if (price < 0) {
+                showError("Price must be a positive number.");
+                return;
+            }
+            if (inventory < 0) {
+                showError("Inventory must be a non-negative whole number.");
+                return;
+            }
+        
+            productService.addProduct(name, price, inventory);
             clearForm();
             loadProducts();
             showSuccess("Product added successfully!");
         } catch (NumberFormatException ex) {
-            showError("Invalid price format.");
+            showError("Invalid number format for price or inventory.");
+        } catch (Exception ex) {
+            showError("Failed to add product: " + ex.getMessage());
+        }
+
+        try {
+            double price = Double.parseDouble(priceStr);
+            int inventory = invStr.isEmpty() ? 0 : Integer.parseInt(invStr);
+            productService.addProduct(name, price, inventory);
+            clearForm();
+            loadProducts();
+            showSuccess("Product added successfully!");
+        } catch (NumberFormatException ex) {
+            showError("Invalid number format.");
         } catch (Exception ex) {
             showError("Failed to add product: " + ex.getMessage());
         }
@@ -147,14 +179,16 @@ public class ProductsPanel extends JPanel {
             int id = Integer.parseInt(idStr);
             String name = nameField.getText().trim();
             String priceStr = priceField.getText().trim();
+            String invStr = inventoryField.getText().trim();
 
             if (name.isEmpty() || priceStr.isEmpty()) {
-                showError("All fields are required.");
+                showError("Name and Price are required.");
                 return;
             }
 
             double price = Double.parseDouble(priceStr);
-            productService.updateProduct(id, name, price);
+            int inventory = invStr.isEmpty() ? 0 : Integer.parseInt(invStr);
+            productService.updateProduct(id, name, price, inventory);
             clearForm();
             loadProducts();
             showSuccess("Product updated successfully!");
@@ -168,32 +202,53 @@ public class ProductsPanel extends JPanel {
     private void deleteProduct() {
         String idStr = idField.getText().trim();
         if (idStr.isEmpty()) {
-            showError("Please select a product from the table to delete.");
+            showError("Please select a product from the table to update.");
             return;
         }
-
-        int confirm = JOptionPane.showConfirmDialog(
-            this, "Are you sure you want to delete product ID " + idStr + "?",
-            "Confirm Delete", JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) return;
-
+        
         try {
             int id = Integer.parseInt(idStr);
-            productService.deleteProduct(id);
+            String name = nameField.getText().trim();
+            String priceStr = priceField.getText().trim();
+            String invStr = inventoryField.getText().trim();
+        
+            
+            if (name.isEmpty() || priceStr.isEmpty() || invStr.isEmpty()) {
+                showError("Name, Price, and Inventory are required.");
+                return;
+            }
+        
+            double price = Double.parseDouble(priceStr);
+            int inventory = Integer.parseInt(invStr);
+        
+            if (price < 0) {
+                showError("Price must be a positive number.");
+                return;
+            }
+            if (inventory < 0) {
+                showError("Inventory must be a non-negative whole number.");
+                return;
+            }
+        
+            productService.updateProduct(id, name, price, inventory);
             clearForm();
             loadProducts();
-            showSuccess("Product deleted successfully!");
+            showSuccess("Product updated successfully!");
+        } catch (NumberFormatException ex) {
+            showError("Invalid format: ID must be an integer; price/inventory must be numbers.");
         } catch (Exception ex) {
-            showError("Failed to delete product: " + ex.getMessage());
+            showError("Failed to update product: " + ex.getMessage());
         }
+        
+        
+        
     }
 
     private void clearForm() {
         idField.setText("");
         nameField.setText("");
         priceField.setText("");
+        inventoryField.setText("");
         table.clearSelection();
     }
 

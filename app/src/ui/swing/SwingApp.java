@@ -16,8 +16,13 @@ public class SwingApp {
                 // fall back to default
             }
 
-            DashboardFrame frame = new DashboardFrame();
-            frame.setVisible(true);
+            // Show login dialog first
+            if (LoginDialog.showLogin(null)) {
+                DashboardFrame frame = new DashboardFrame();
+                frame.setVisible(true);
+            } else {
+                System.exit(0);
+            }
         });
     }
 }

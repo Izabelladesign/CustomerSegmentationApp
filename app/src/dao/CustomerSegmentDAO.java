@@ -31,7 +31,7 @@ public class CustomerSegmentDAO {
                         rs.getInt("R"),
                         rs.getInt("F"),
                         rs.getDouble("M"),
-                        rs.getInt("RFMScore")
+                        rs.getString("RFMScore")
                 );
                 list.add(cs);
             }
@@ -61,14 +61,14 @@ public class CustomerSegmentDAO {
 
             while (rs.next()) {
                 String line = String.format(
-                    "Customer %d: %s | Segment: %s | R=%d, F=%d, M=$%.2f | RFM Score: %d | Date: %s",
+                    "Customer %d: %s | Segment: %s | R=%d, F=%d, M=$%.2f | RFM Score: %s | Date: %s",
                     rs.getInt("CustomerID"),
                     rs.getString("CustomerName"),
                     rs.getString("SegmentName"),
                     rs.getInt("R"),
                     rs.getInt("F"),
                     rs.getDouble("M"),
-                    rs.getInt("RFMScore"),
+                    rs.getString("RFMScore"),
                     rs.getDate("AsOfDate")
                 );
                 list.add(line);

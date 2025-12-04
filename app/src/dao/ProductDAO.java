@@ -9,7 +9,7 @@ import model.Product;
 public class ProductDAO {
 
     public List<Product> listAll() throws Exception {
-        String sql = "SELECT ProductID, ProductName, ProductPrice AS UnitPrice FROM Products";
+        String sql = "SELECT ProductID, ProductName, ProductPrice, Inventory FROM Products";
 
         try (Connection conn = DBConnection.get();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -21,7 +21,8 @@ public class ProductDAO {
                 Product p = new Product(
                         rs.getInt("ProductID"),
                         rs.getString("ProductName"),
-                        rs.getDouble("UnitPrice")   // uses the alias
+                        rs.getDouble("ProductPrice"),
+                        rs.getInt("Inventory")
                 );
                 list.add(p);
             }
@@ -40,7 +41,8 @@ public class ProductDAO {
                     return new Product(
                             rs.getInt("ProductID"),
                             rs.getString("ProductName"),
-                            rs.getDouble("ProductPrice")
+                            rs.getDouble("ProductPrice"),
+                            rs.getInt("Inventory")
                     );
                 } else {
                     return null;
@@ -51,25 +53,26 @@ public class ProductDAO {
 
 
     public void insert(Product p) throws Exception {
-        // use ProductPrice here, not UnitPrice
-        String sql = "INSERT INTO Products (ProductName, ProductPrice) VALUES (?, ?)";
+        String sql = "INSERT INTO Products (ProductName, ProductPrice, Inventory) VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnection.get();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, p.getProductName());
             stmt.setDouble(2, p.getUnitPrice());
+            stmt.setInt(3, p.getInventory());
             stmt.executeUpdate();
         }
     }
 
     public void update(Product p) throws Exception {
-        String sql = "UPDATE Products SET ProductName = ?, ProductPrice = ? WHERE ProductID = ?";
+        String sql = "UPDATE Products SET ProductName = ?, ProductPrice = ?, Inventory = ? WHERE ProductID = ?";
 
         try (Connection conn = DBConnection.get();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, p.getProductName());
             stmt.setDouble(2, p.getProductPrice());
-            stmt.setInt(3, p.getProductID());
+            stmt.setInt(3, p.getInventory());
+            stmt.setInt(4, p.getProductID());
             stmt.executeUpdate();
         }
     }

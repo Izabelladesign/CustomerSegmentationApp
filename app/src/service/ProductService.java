@@ -13,12 +13,20 @@ public class ProductService {
     }
 
     public void addProduct(String name, double price) throws Exception {
-        Product p = new Product(0, name, price);
+        addProduct(name, price, 0);
+    }
+
+    public void addProduct(String name, double price, int inventory) throws Exception {
+        Product p = new Product(0, name, price, inventory);
         dao.insert(p);
     }
 
     public void updateProduct(int id, String name, double price) throws Exception {
-        Product p = new Product(id, name, price);
+        updateProduct(id, name, price, 0);
+    }
+
+    public void updateProduct(int id, String name, double price, int inventory) throws Exception {
+        Product p = new Product(id, name, price, inventory);
         dao.update(p);
     }
 

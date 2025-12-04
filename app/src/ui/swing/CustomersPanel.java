@@ -1,20 +1,25 @@
 package ui.swing;
 
+
+import dao.SegmentDAO;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.JTextField;  
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import model.Customer;
+import model.Segment;
 import service.CustomerService;
 
 /**
@@ -26,6 +31,8 @@ public class CustomersPanel extends JPanel {
     private final CustomerService customerService;
     private final DefaultTableModel tableModel;
     private final JTable table;
+    private final JComboBox<String> segmentFilter;
+    private final SegmentDAO segmentDAO = new SegmentDAO();
 
     private final JTextField firstNameField = new JTextField(12);
     private final JTextField lastNameField = new JTextField(12);
@@ -45,7 +52,23 @@ public class CustomersPanel extends JPanel {
         };
         table = new JTable(tableModel);
 
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        // Build segment filter
+        segmentFilter = new JComboBox<>();
+        segmentFilter.addItem("All Customers");
+        try {
+            for (Segment s : segmentDAO.listAll()) {
+                segmentFilter.addItem(s.getSegmentName());
+            }
+        } catch (Exception ex) {
+            // If segments can't be loaded, just show "All Customers"
+        }
+        segmentFilter.addActionListener(e -> filterBySegment());
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(buildSearchPanel(), BorderLayout.NORTH);
+        topPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        add(topPanel, BorderLayout.CENTER);
         add(buildFormPanel(), BorderLayout.SOUTH);
 
         // Add selection listener for editing
@@ -61,6 +84,60 @@ public class CustomersPanel extends JPanel {
         });
 
         loadCustomers();
+    }
+
+    private JPanel buildSearchPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.setBorder(BorderFactory.createTitledBorder("Filter by Segment"));
+        panel.add(new JLabel("Segment:"));
+        panel.add(segmentFilter);
+        JButton showAllBtn = new JButton("Show All");
+        showAllBtn.addActionListener(e -> {
+            segmentFilter.setSelectedIndex(0);
+            loadCustomers();
+        });
+        panel.add(showAllBtn);
+        return panel;
+    }
+
+    private void filterBySegment() {
+        String selected = (String) segmentFilter.getSelectedItem();
+        if (selected == null || "All Customers".equals(selected)) {
+            loadCustomers();
+            return;
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            try {
+                // Find segment ID by name
+                int segmentID = -1;
+                for (Segment s : segmentDAO.listAll()) {
+                    if (s.getSegmentName().equals(selected)) {
+                        segmentID = s.getSegmentID();
+                        break;
+                    }
+                }
+
+                if (segmentID == -1) {
+                    showError("Segment not found.");
+                    return;
+                }
+
+                List<Customer> customers = customerService.getBySegment(segmentID);
+                tableModel.setRowCount(0);
+                for (Customer c : customers) {
+                    tableModel.addRow(new Object[]{
+                            c.getCustomerID(),
+                            c.getFirstName(),
+                            c.getLastName(),
+                            c.getEmail(),
+                            c.getStatus()
+                    });
+                }
+            } catch (Exception ex) {
+                showError("Failed to filter customers: " + ex.getMessage());
+            }
+        });
     }
 
     private JPanel buildFormPanel() {
