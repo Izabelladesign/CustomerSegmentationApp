@@ -33,27 +33,6 @@ This project follows a three-tier architecture (Presentation → Logic → Data)
 - Login screen  
 - Panels for customers, products, orders, segments, and reports  
 
-## Project Structure
-
-CustomerSegmentationApp/
-│
-├── src/
-│   ├── dao/          # Data Access Objects (JDBC operations)
-│   ├── db/           # DB connection utilities
-│   ├── model/        # Entity classes
-│   ├── service/      # Business logic (CRUD, RFM, reporting)
-│   └── ui/
-│       ├── console/  # Console interface
-│       └── swing/    # Swing GUI
-│
-├── sql/
-│   ├── create_schema.sql
-│   ├── initialize_data.sql
-│   ├── rfm_views.sql
-│   └── rfm_refresh.sql
-│
-└── README.md
-
 ## Database Schema
 The system uses MySQL with the following tables:
 
