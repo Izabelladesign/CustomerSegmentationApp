@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 public class DBConnection {
 
+    //Loads database configuration properties from the db.properties file
     private static Properties loadProps() throws Exception {
         Properties props = new Properties();
         try (InputStream in = DBConnection.class.getResourceAsStream("/db/db.properties")) {
@@ -17,7 +18,7 @@ public class DBConnection {
         }
         return props;
     }
-
+//creates and returns a database connection using credentials
     public static Connection get() throws Exception {
         Properties props = loadProps();
         String url = props.getProperty("url");
