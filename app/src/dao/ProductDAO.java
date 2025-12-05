@@ -7,7 +7,10 @@ import java.util.List;
 import model.Product;
 
 public class ProductDAO {
-
+    /**
+     * Returns all products from the database.
+     * Used to load the full product list in the GUI.
+     */
     public List<Product> listAll() throws Exception {
         String sql = "SELECT ProductID, ProductName, ProductPrice, Inventory FROM Products";
 
@@ -29,7 +32,10 @@ public class ProductDAO {
             return list;
         }
     }
-    
+    /**
+     * Looks up a single product by its ID.
+     * Returns null if the product doesn't exist.
+     */
     public Product findById(int productID) throws Exception {
         String sql = "SELECT * FROM Products WHERE ProductID = ?";
 
@@ -51,7 +57,9 @@ public class ProductDAO {
         }
     }
 
-
+    /**
+     * Adds a new product to the database.
+     */
     public void insert(Product p) throws Exception {
         String sql = "INSERT INTO Products (ProductName, ProductPrice, Inventory) VALUES (?, ?, ?)";
 
@@ -63,7 +71,9 @@ public class ProductDAO {
             stmt.executeUpdate();
         }
     }
-
+    /**
+     * Updates an existing product's details.
+     */
     public void update(Product p) throws Exception {
         String sql = "UPDATE Products SET ProductName = ?, ProductPrice = ?, Inventory = ? WHERE ProductID = ?";
 
