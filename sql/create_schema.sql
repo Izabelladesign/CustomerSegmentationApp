@@ -42,7 +42,7 @@ CREATE TABLE Orders (
     -- Used in RFM calculations (Monetary = SUM(OrderAmount)). Application code must keep this in sync.
     OrderAmount DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
-        ON DELETE CASCADE
+        ON DELETE CASCADE      -- helps to ensure that if we were to delete a customer it also deletes all related data
 );
 
 
@@ -58,7 +58,7 @@ CREATE TABLE OrderItems (
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
         ON DELETE CASCADE,
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
-        ON DELETE CASCADE        
+        ON DELETE CASCADE        -- helps to ensure that if we were to delete a customer it also deletes all related data
 );
 
 
