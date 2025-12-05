@@ -7,7 +7,10 @@ import java.util.List;
 import model.Customer;
 
 public class CustomerDAO {
-
+     /**
+     * Gets all customers from the Customers table.
+     * Uses a simple SELECT query and turns each row into a Customer object.
+     */
     public List<Customer> listAll() throws Exception {
         String sql = "SELECT * FROM Customers";
 
@@ -30,7 +33,10 @@ public class CustomerDAO {
             return list;
         }
     }
-
+    /**
+     * Adds a new customer into the database.
+     * Uses a prepared statement to safely insert user-provided data.
+     */
     public void insert(Customer c) throws Exception {
         String sql = "INSERT INTO Customers (FirstName, LastName, CustomerEmail, CustomerStatus) VALUES (?, ?, ?, ?)";
 
@@ -45,7 +51,9 @@ public class CustomerDAO {
             stmt.executeUpdate();
         }
     }
-
+    /**
+     * Updates an existing customer's info based on their ID.
+     */
     public void update(Customer c) throws Exception {
         String sql = "UPDATE Customers SET FirstName = ?, LastName = ?, CustomerEmail = ?, CustomerStatus = ? WHERE CustomerID = ?";
 
