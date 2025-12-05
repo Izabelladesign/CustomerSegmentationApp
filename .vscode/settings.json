@@ -1,0 +1,19 @@
+{
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-21",
+            "path": "/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home",
+            "default": true
+        }
+    ],
+    "java.jdt.ls.java.home": "/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.project.referencedLibraries": [
+        "app/lib/**/*.jar"
+    ],
+    "java.project.sourcePaths": [
+        "app/src"
+    ],
+    "java.project.outputPath": "app/classes"
+}

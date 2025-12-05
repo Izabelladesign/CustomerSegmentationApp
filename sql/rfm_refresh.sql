@@ -1,22 +1,37 @@
 USE segdb;
 
-DELETE FROM CustomerSegments;
+
+TRUNCATE TABLE CustomerSegments;
 
 INSERT INTO CustomerSegments (CustomerID, SegmentID, AsOfDate, R, F, M, RFMScore)
 SELECT
-    m.CustomerID,
+    q.CustomerID,
+
+    -- Segment mapping based on RFM quintiles (5 segments: 1=Loyal, 2=New, 3=At-Risk, 4=Churned, 5=High-Value)
     CASE
-        WHEN m.Recency < 60 AND m.Frequency >= 3 AND m.Monetary > 300 THEN 1
-        WHEN m.Recency < 120 AND m.Frequency >= 2 THEN 2
-        ELSE 3
+        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 4 AND q.M_Quintile >= 4 THEN 5  -- High-Value (high R, F, M)
+        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 3 AND q.M_Quintile < 4 THEN 1  -- Loyal (recent + frequent, moderate spending)
+        WHEN q.R_Quintile >= 4 AND q.F_Quintile < 3 THEN 2  -- New (recent but low frequency)
+        WHEN q.R_Quintile BETWEEN 2 AND 3 THEN 3  -- At-Risk (medium recency)
+        ELSE 4  -- Churned (low recency)
     END AS SegmentID,
+
     CURRENT_DATE,
-    m.Recency,
-    m.Frequency,
-    m.Monetary,
-    CONCAT(
-        CASE WHEN m.Recency < 60 THEN 1 WHEN m.Recency < 120 THEN 2 ELSE 3 END,
-        CASE WHEN m.Frequency >= 3 THEN 1 WHEN m.Frequency >= 2 THEN 2 ELSE 3 END,
-        CASE WHEN m.Monetary > 300 THEN 1 WHEN m.Monetary > 100 THEN 2 ELSE 3 END
-    ) AS RFMScore
-FROM v_customer_metrics m;
+    q.Recency,
+    q.Frequency,
+    q.Monetary,
+
+    -- Simplified overall RFM score (1 = lowest, 5 = highest) using rounded average of the three quintiles
+    ROUND((q.R_Quintile + q.F_Quintile + q.M_Quintile) / 3, 0) AS RFMScore
+
+FROM (
+    SELECT
+        m.CustomerID,
+        m.Recency,
+        m.Frequency,
+        m.Monetary,
+        (6 - NTILE(5) OVER (ORDER BY m.Recency ASC)) AS R_Quintile,  -- R: 5 = most recent, 1 = least recent
+        NTILE(5) OVER (ORDER BY m.Frequency DESC) AS F_Quintile,     -- F: 5 = most frequent, 1 = least frequent
+        NTILE(5) OVER (ORDER BY m.Monetary DESC) AS M_Quintile        -- M: 5 = highest spending, 1 = lowest spending
+    FROM v_customer_metrics m
+) q;
