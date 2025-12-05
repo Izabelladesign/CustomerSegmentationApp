@@ -2,6 +2,10 @@ package model;
 
 import java.sql.Date;
 
+/**
+ * Represents a customer's segment data using RFM analysis.
+ * Stores customer ID, segment ID, RFM values, score, and the reference date.
+ */
 public class CustomerSegment {
     private int id;
     private int customerID;
@@ -12,6 +16,9 @@ public class CustomerSegment {
     private double m;
     private int rfmScore;
 
+    /**
+     * Constructor to create a CustomerSegment object with all attributes.
+     */
     public CustomerSegment(int id, int customerID, int segmentID,
                            Date asOfDate, int r, int f, double m, int rfmScore) {
         this.id = id;
@@ -24,6 +31,7 @@ public class CustomerSegment {
         this.rfmScore = rfmScore;
     }
 
+    //getters 
     public int getId() {
         return id;
     }
@@ -56,6 +64,7 @@ public class CustomerSegment {
         return rfmScore;
     }
 
+    //returns a strong representation of the CustomerSegment 
     @Override
     public String toString() {
         return "CustomerSegment{" +
