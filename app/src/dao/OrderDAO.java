@@ -9,10 +9,13 @@ import model.OrderItemWithProduct;
 import model.OrderWithCustomer;
 
 public class OrderDAO {
-
+    /**
+     * Inserts a new order using the current timestamp.
+     * Returns the generated OrderID so it can be used to add order items.
+     */
     public int insertOrder(int customerID, double orderAmount) throws Exception {
         String sql = "INSERT INTO Orders (CustomerID, OrderDate, OrderAmount) VALUES (?, NOW(), ?)";
-
+        // Get auto-generated primary key
         try (Connection conn = DBConnection.get();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, customerID);
@@ -27,7 +30,9 @@ public class OrderDAO {
             }
         }
     }
-
+    /**
+     * Inserts an order with a custom date (used for sample/test data).
+     */
     public int insertOrderWithDate(int customerID, double orderAmount, java.sql.Timestamp orderDate) throws Exception {
         String sql = "INSERT INTO Orders (CustomerID, OrderDate, OrderAmount) VALUES (?, ?, ?)";
 
@@ -46,7 +51,10 @@ public class OrderDAO {
             }
         }
     }
-
+    /**
+     * Returns all orders for a specific customer.
+     * Sorted by most recent order first.
+     */
     public List<Order> listByCustomer(int customerID) throws Exception {
         String sql = "SELECT * FROM Orders WHERE CustomerID = ? ORDER BY OrderDate DESC";
 
@@ -70,7 +78,10 @@ public class OrderDAO {
             }
         }
     }
-
+    /**
+     * Updates the total amount for an order.
+     * Used when order items change and the total needs to stay in sync.
+     */
     public void updateOrderAmount(int orderID, double orderAmount) throws Exception {
         String sql = "UPDATE Orders SET OrderAmount = ? WHERE OrderID = ?";
 
@@ -81,7 +92,11 @@ public class OrderDAO {
             stmt.executeUpdate();
         }
     }
-
+    /**
+     * Deletes an order by its ID.
+     * Because of ON DELETE CASCADE in the database, all related order items
+     * will automatically be removed too.
+     */
     public void deleteOrder(int orderID) throws Exception {
         String sql = "DELETE FROM Orders WHERE OrderID = ?";
 
