@@ -38,11 +38,34 @@ public class RFMPanel extends JPanel {
         buttonPanel.add(recomputeBtn);
         buttonPanel.add(refreshBtn);
 
+        // RFM Score explanation panel
+        JPanel infoPanel = new JPanel(new BorderLayout());
+        infoPanel.setBorder(BorderFactory.createTitledBorder("About RFM Scores"));
+        JTextArea infoText = new JTextArea(
+            "RFM (Recency, Frequency, Monetary) Analysis:\n\n" +
+            "• R (Recency): Days since last purchase. Lower = more recent.\n" +
+            "• F (Frequency): Total number of orders. Higher = more frequent.\n" +
+            "• M (Monetary): Total amount spent. Higher = more valuable.\n" +
+            "• RFM Score: Average of R, F, M quintiles (1-5 scale). Higher score = better customer.\n\n" +
+            "Segments: High-Value (top spenders), Loyal (recent + frequent), New (recent customers), " +
+            "At-Risk (declining activity), Churned (inactive)."
+        );
+        infoText.setEditable(false);
+        infoText.setBackground(this.getBackground());
+        infoText.setFont(infoText.getFont().deriveFont(Font.PLAIN, 11f));
+        infoText.setWrapStyleWord(true);
+        infoText.setLineWrap(true);
+        infoPanel.add(new JScrollPane(infoText), BorderLayout.CENTER);
+
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(buttonPanel, BorderLayout.NORTH);
         topPanel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        add(topPanel, BorderLayout.CENTER);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(topPanel, BorderLayout.CENTER);
+        mainPanel.add(infoPanel, BorderLayout.SOUTH);
+
+        add(mainPanel, BorderLayout.CENTER);
 
         loadSegments();
     }

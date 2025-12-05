@@ -1,13 +1,12 @@
 package dao;
 
 import db.DBConnection;
-import dao.OrderItemDAO;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.Order;
-import model.OrderWithCustomer;
 import model.OrderItemWithProduct;
+import model.OrderWithCustomer;
 
 public class OrderDAO {
 
@@ -18,6 +17,25 @@ public class OrderDAO {
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, customerID);
             stmt.setDouble(2, orderAmount);
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+                throw new RuntimeException("Failed to get generated OrderID");
+            }
+        }
+    }
+
+    public int insertOrderWithDate(int customerID, double orderAmount, java.sql.Timestamp orderDate) throws Exception {
+        String sql = "INSERT INTO Orders (CustomerID, OrderDate, OrderAmount) VALUES (?, ?, ?)";
+
+        try (Connection conn = DBConnection.get();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, customerID);
+            stmt.setTimestamp(2, orderDate);
+            stmt.setDouble(3, orderAmount);
             stmt.executeUpdate();
 
             try (ResultSet rs = stmt.getGeneratedKeys()) {

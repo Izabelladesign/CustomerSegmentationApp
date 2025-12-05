@@ -105,7 +105,18 @@ public class LoginDialog extends JDialog {
             return;
         }
 
-        // TODO: hook this up to real admin accounts later if you want
+        // Only allow admin emails ending with @admin.com
+        if (!username.toLowerCase().endsWith("@admin.com")) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Access denied. Only admin emails ending with @admin.com are allowed.",
+                "Login Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+            authenticated = false;
+            return;
+        }
+
         authenticated = true;
         dispose();
     }

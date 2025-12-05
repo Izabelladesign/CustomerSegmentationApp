@@ -82,4 +82,41 @@ public class OrderService {
 
         return orderID;
     }
+
+    /**
+     * Creates an order with a product, custom amount, and custom date.
+     */
+    public int createOrderWithProductAndDate(int customerID, int productID, int quantity, double orderAmount, java.sql.Timestamp orderDate) throws Exception {
+        if (customerID <= 0) {
+            throw new IllegalArgumentException("Customer ID must be positive.");
+        }
+        if (productID <= 0) {
+            throw new IllegalArgumentException("Product ID must be positive.");
+        }
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive.");
+        }
+        if (orderAmount <= 0) {
+            throw new IllegalArgumentException("Order amount must be positive.");
+        }
+        if (orderDate == null) {
+            throw new IllegalArgumentException("Order date cannot be null.");
+        }
+
+        // Get product to get its price for the order item
+        ProductDAO productDAO = new ProductDAO();
+        Product product = productDAO.findById(productID);
+        if (product == null) {
+            throw new IllegalArgumentException("Product with ID " + productID + " not found.");
+        }
+
+        // Create the order with custom date and amount
+        int orderID = orderDAO.insertOrderWithDate(customerID, orderAmount, orderDate);
+
+        // Create the order item
+        OrderItemDAO itemDAO = new OrderItemDAO();
+        itemDAO.insertItem(orderID, productID, quantity, product.getProductPrice());
+
+        return orderID;
+    }
 }

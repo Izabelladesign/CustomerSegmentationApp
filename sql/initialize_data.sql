@@ -38,112 +38,130 @@ VALUES
 ('Graphic Tablet', 219.99, 8),
 ('Webcam', 89.99, 28);
 
--- Insert orders with varied dates for segment diversity
--- Recent orders (0-60 days): Customers 1, 2, 3, 4, 5
--- Medium orders (60-180 days): Customers 6, 7, 8, 9, 10
--- Old orders (180+ days): Customers 11, 12, 13, 14, 15
--- Some customers have multiple orders for frequency variety
+-- Insert orders with varied dates to ensure each segment has customers
+-- Strategy: 
+-- High-Value (Segment 5): High spending + recent + frequent (Customer 1, 6)
+-- Loyal (Segment 1): Recent + frequent (Customer 2, 4)
+-- New (Segment 2): Recent but lower frequency (Customer 3, 5, 7)
+-- At-Risk (Segment 3): Medium recency, declining (Customer 8, 9, 10)
+-- Churned (Segment 4): Old orders, no recent activity (Customer 11, 12, 13, 14, 15)
 
 INSERT INTO Orders (CustomerID, OrderDate, OrderAmount)
 VALUES
--- Recent, high-frequency customers (Loyal/High-Value segments)
-(1, DATE_SUB(CURRENT_DATE, INTERVAL 15 DAY), 939.97),
-(1, DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY), 199.99),
-(1, DATE_SUB(CURRENT_DATE, INTERVAL 45 DAY), 149.99),
-(2, DATE_SUB(CURRENT_DATE, INTERVAL 10 DAY), 29.99),
-(2, DATE_SUB(CURRENT_DATE, INTERVAL 25 DAY), 79.99),
-(3, DATE_SUB(CURRENT_DATE, INTERVAL 20 DAY), 49.99),
-(3, DATE_SUB(CURRENT_DATE, INTERVAL 35 DAY), 99.99),
-(4, DATE_SUB(CURRENT_DATE, INTERVAL 5 DAY), 264.98),
-(4, DATE_SUB(CURRENT_DATE, INTERVAL 40 DAY), 199.99),
-(5, DATE_SUB(CURRENT_DATE, INTERVAL 12 DAY), 79.99),
+-- High-Value customers: High spending, recent, frequent (Segment 5)
+(1, DATE_SUB(CURRENT_DATE, INTERVAL 10 DAY), 1200.00),  -- High spending, recent
+(1, DATE_SUB(CURRENT_DATE, INTERVAL 25 DAY), 800.00),   -- Multiple orders
+(1, DATE_SUB(CURRENT_DATE, INTERVAL 40 DAY), 600.00),
+(6, DATE_SUB(CURRENT_DATE, INTERVAL 15 DAY), 1500.00),  -- Very high spending
+(6, DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY), 900.00),
 
--- Medium recency customers (At-Risk/Returning segments)
-(6, DATE_SUB(CURRENT_DATE, INTERVAL 90 DAY), 1099.98),
-(6, DATE_SUB(CURRENT_DATE, INTERVAL 100 DAY), 299.99),
-(7, DATE_SUB(CURRENT_DATE, INTERVAL 75 DAY), 49.98),
-(8, DATE_SUB(CURRENT_DATE, INTERVAL 110 DAY), 189.98),
-(8, DATE_SUB(CURRENT_DATE, INTERVAL 120 DAY), 129.99),
-(9, DATE_SUB(CURRENT_DATE, INTERVAL 95 DAY), 299.99),
-(10, DATE_SUB(CURRENT_DATE, INTERVAL 85 DAY), 399.98),
+-- Loyal customers: Recent + frequent (Segment 1)
+(2, DATE_SUB(CURRENT_DATE, INTERVAL 5 DAY), 200.00),    -- Very recent
+(2, DATE_SUB(CURRENT_DATE, INTERVAL 20 DAY), 150.00),   -- Multiple orders
+(2, DATE_SUB(CURRENT_DATE, INTERVAL 35 DAY), 100.00),
+(4, DATE_SUB(CURRENT_DATE, INTERVAL 8 DAY), 300.00),    -- Recent
+(4, DATE_SUB(CURRENT_DATE, INTERVAL 22 DAY), 250.00),   -- Multiple orders
 
--- Old orders (Churned segment)
-(11, DATE_SUB(CURRENT_DATE, INTERVAL 200 DAY), 24.98),
-(12, DATE_SUB(CURRENT_DATE, INTERVAL 250 DAY), 299.98),
-(13, DATE_SUB(CURRENT_DATE, INTERVAL 220 DAY), 899.99),
-(14, DATE_SUB(CURRENT_DATE, INTERVAL 280 DAY), 239.98),
-(15, DATE_SUB(CURRENT_DATE, INTERVAL 300 DAY), 149.98);
+-- New customers: Recent but lower frequency (Segment 2)
+(3, DATE_SUB(CURRENT_DATE, INTERVAL 12 DAY), 150.00),   -- Recent, single order
+(5, DATE_SUB(CURRENT_DATE, INTERVAL 18 DAY), 180.00),    -- Recent, single order
+(7, DATE_SUB(CURRENT_DATE, INTERVAL 3 DAY), 120.00),   -- Very recent, single order
 
--- Insert order items (updated to match new orders)
+-- At-Risk customers: Medium recency, declining activity (Segment 3)
+(8, DATE_SUB(CURRENT_DATE, INTERVAL 100 DAY), 200.00),   -- 100 days ago
+(8, DATE_SUB(CURRENT_DATE, INTERVAL 120 DAY), 150.00),   -- Last order 120 days
+(9, DATE_SUB(CURRENT_DATE, INTERVAL 95 DAY), 300.00),     -- 95 days ago
+(10, DATE_SUB(CURRENT_DATE, INTERVAL 110 DAY), 250.00),  -- 110 days ago
+
+-- Churned customers: Old orders, no recent activity (Segment 4)
+(11, DATE_SUB(CURRENT_DATE, INTERVAL 250 DAY), 100.00), -- 250 days ago
+(12, DATE_SUB(CURRENT_DATE, INTERVAL 280 DAY), 200.00),  -- 280 days ago
+(13, DATE_SUB(CURRENT_DATE, INTERVAL 300 DAY), 150.00),  -- 300 days ago
+(14, DATE_SUB(CURRENT_DATE, INTERVAL 320 DAY), 180.00), -- 320 days ago
+(15, DATE_SUB(CURRENT_DATE, INTERVAL 350 DAY), 120.00);  -- 350 days ago
+
+-- Insert order items (updated to match new orders - 22 orders total)
 INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice)
 VALUES
--- Customer 1 orders (3 orders)
-(1, 1, 1, 899.99),
-(1, 2, 1, 29.99),
-(1, 5, 1, 9.99),
-(2, 7, 1, 199.99),
-(3, 12, 1, 149.99),
--- Customer 2 orders (2 orders)
-(4, 2, 1, 29.99),
-(5, 6, 1, 79.99),
--- Customer 3 orders (2 orders)
-(6, 4, 1, 49.99),
-(7, 6, 1, 79.99),
-(7, 3, 1, 14.99),
--- Customer 4 orders (2 orders)
-(8, 8, 1, 249.99),
-(8, 3, 1, 14.99),
-(9, 7, 1, 199.99),
--- Customer 5 order
-(10, 6, 1, 79.99),
--- Customer 6 orders (2 orders)
-(11, 1, 1, 899.99),
-(11, 7, 1, 199.99),
-(12, 13, 1, 299.99),
--- Customer 7 order
-(13, 9, 1, 39.99),
-(13, 5, 1, 9.99),
--- Customer 8 orders (2 orders)
-(14, 10, 1, 129.99),
-(14, 11, 1, 59.99),
-(15, 10, 1, 129.99),
--- Customer 9 order
-(16, 13, 1, 299.99),
--- Customer 10 order
-(17, 12, 1, 149.99),
-(17, 8, 1, 249.99),
--- Customer 11 order (old)
-(18, 3, 1, 14.99),
-(18, 5, 1, 9.99),
--- Customer 12 order (old)
-(19, 14, 1, 219.99),
-(19, 6, 1, 79.99),
--- Customer 13 order (old)
-(20, 1, 1, 899.99),
--- Customer 14 order (old)
-(21, 7, 1, 199.99),
-(21, 9, 1, 39.99),
--- Customer 15 order (old)
-(22, 15, 1, 89.99),
-(22, 11, 1, 59.99);
+-- Customer 1 orders (High-Value: 3 orders)
+(1, 1, 1, 899.99),   -- Laptop
+(1, 7, 1, 199.99),   -- Headphones
+(1, 12, 1, 149.99),  -- SSD
+(2, 1, 1, 899.99),   -- Laptop
+(2, 2, 1, 29.99),    -- Mouse
+(3, 13, 1, 299.99),  -- Office Chair
+(3, 8, 1, 249.99),  -- Smartwatch
 
--- Insert segments (15 entries)
+-- Customer 2 orders (Loyal: 3 orders)
+(4, 7, 1, 199.99),   -- Headphones
+(5, 6, 1, 79.99),    -- Speaker
+(5, 3, 1, 14.99),    -- Phone Case
+(6, 8, 1, 249.99),   -- Smartwatch
+(6, 5, 1, 9.99),     -- USB-C Cable
+
+-- Customer 3 order (New: 1 order)
+(7, 10, 1, 129.99),  -- Gaming Keyboard
+(7, 11, 1, 59.99),   -- Monitor Stand
+
+-- Customer 4 orders (Loyal: 2 orders)
+(8, 12, 1, 149.99),  -- SSD
+(8, 6, 1, 79.99),    -- Speaker
+(9, 7, 1, 199.99),   -- Headphones
+(9, 4, 1, 49.99),    -- Desk Lamp
+
+-- Customer 5 order (New: 1 order)
+(10, 8, 1, 249.99),  -- Smartwatch
+(10, 3, 1, 14.99),   -- Phone Case
+
+-- Customer 6 orders (High-Value: 2 orders)
+(11, 1, 1, 899.99),  -- Laptop
+(11, 13, 1, 299.99), -- Office Chair
+(11, 7, 1, 199.99),  -- Headphones
+(12, 1, 1, 899.99),  -- Laptop
+(12, 12, 1, 149.99), -- SSD
+
+-- Customer 7 order (New: 1 order)
+(13, 6, 1, 79.99),   -- Speaker
+(13, 9, 1, 39.99),   -- Portable Charger
+
+-- Customer 8 orders (At-Risk: 2 orders)
+(14, 10, 1, 129.99), -- Gaming Keyboard
+(14, 11, 1, 59.99),  -- Monitor Stand
+(15, 10, 1, 129.99), -- Gaming Keyboard
+
+-- Customer 9 order (At-Risk: 1 order)
+(16, 13, 1, 299.99), -- Office Chair
+
+-- Customer 10 order (At-Risk: 1 order)
+(17, 12, 1, 149.99), -- SSD
+(17, 8, 1, 249.99),  -- Smartwatch
+
+-- Customer 11 order (Churned: 1 order)
+(18, 3, 1, 14.99),   -- Phone Case
+(18, 5, 1, 9.99),    -- USB-C Cable
+
+-- Customer 12 order (Churned: 1 order)
+(19, 14, 1, 219.99), -- Graphic Tablet
+(19, 6, 1, 79.99),   -- Speaker
+
+-- Customer 13 order (Churned: 1 order)
+(20, 1, 1, 899.99),  -- Laptop
+
+-- Customer 14 order (Churned: 1 order)
+(21, 7, 1, 199.99),  -- Headphones
+(21, 9, 1, 39.99),   -- Portable Charger
+
+-- Customer 15 order (Churned: 1 order)
+(22, 15, 1, 89.99),  -- Webcam
+(22, 11, 1, 59.99);  -- Monitor Stand
+
+-- Insert segments (5 core segments)
 INSERT INTO Segments (SegmentID, SegmentName, Description) VALUES
 (1, 'Loyal', 'Frequent and recent purchasers with strong activity'),
 (2, 'New', 'Recently joined customers'),
 (3, 'At-Risk', 'Customers slowing their activity'),
 (4, 'Churned', 'Customers inactive for a long time'),
-(5, 'High-Value', 'Customers with high spending'),
-(6, 'Seasonal', 'Customers who purchase around seasonal events'),
-(7, 'VIP', 'Top spenders with personalized attention'),
-(8, 'Returning', 'Customers who reactivated after a break'),
-(9, 'Prospect', 'Leads yet to make large purchases'),
-(10, 'Budget', 'Customers focused on low-cost items'),
-(11, 'Premium', 'Customers who prefer premium SKUs'),
-(12, 'Dormant', 'Customers idle for extended periods'),
-(13, 'Advocate', 'Promoters who refer others'),
-(14, 'Referred', 'Customers gained through referrals'),
-(15, 'Upsell', 'Customers targeted for cross-sell and upsell');
+(5, 'High-Value', 'Customers with high spending');
 
 -- Note: CustomerSegments are now calculated dynamically via rfm_refresh.sql
 -- Run "Recompute RFM Segments" in the GUI to populate this table

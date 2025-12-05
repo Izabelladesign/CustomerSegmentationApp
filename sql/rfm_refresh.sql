@@ -7,13 +7,13 @@ INSERT INTO CustomerSegments (CustomerID, SegmentID, AsOfDate, R, F, M, RFMScore
 SELECT
     q.CustomerID,
 
-    -- Segment mapping based on RFM quintiles
+    -- Segment mapping based on RFM quintiles (5 segments: 1=Loyal, 2=New, 3=At-Risk, 4=Churned, 5=High-Value)
     CASE
-        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 4 AND q.M_Quintile >= 4 THEN 5  -- High-Value (555, 554, 545, etc.)
-        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 3 THEN 1  -- Loyal (recent + frequent)
-        WHEN q.R_Quintile >= 3 AND q.F_Quintile >= 1 THEN 2  -- New/Returning
-        WHEN q.R_Quintile BETWEEN 2 AND 3 THEN 3  -- At-Risk
-        ELSE 4  -- Churned
+        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 4 AND q.M_Quintile >= 4 THEN 5  -- High-Value (high R, F, M)
+        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 3 AND q.M_Quintile < 4 THEN 1  -- Loyal (recent + frequent, moderate spending)
+        WHEN q.R_Quintile >= 4 AND q.F_Quintile < 3 THEN 2  -- New (recent but low frequency)
+        WHEN q.R_Quintile BETWEEN 2 AND 3 THEN 3  -- At-Risk (medium recency)
+        ELSE 4  -- Churned (low recency)
     END AS SegmentID,
 
     CURRENT_DATE,

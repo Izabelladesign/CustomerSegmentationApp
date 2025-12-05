@@ -16,6 +16,8 @@ public class ProductsPanel extends JPanel {
     private final JTextField nameField = new JTextField(20);
     private final JTextField priceField = new JTextField(12);
     private final JTextField inventoryField = new JTextField(12);
+    private JButton addBtn;
+    private boolean isAdding = false;
 
     public ProductsPanel(ProductService productService) {
         this.productService = productService;
@@ -76,7 +78,7 @@ public class ProductsPanel extends JPanel {
         panel.add(inventoryField, gbc);
 
         JPanel buttonPanel = new JPanel();
-        JButton addBtn = new JButton("Add Product");
+        addBtn = new JButton("Add Product");
         addBtn.addActionListener(e -> addProduct());
         buttonPanel.add(addBtn);
 
@@ -123,6 +125,11 @@ public class ProductsPanel extends JPanel {
     }
 
     private void addProduct() {
+        // Prevent double-clicking or concurrent execution
+        if (isAdding) {
+            return;
+        }
+        
         String name = nameField.getText().trim();
         String priceStr = priceField.getText().trim();
         String invStr = inventoryField.getText().trim();
@@ -131,16 +138,30 @@ public class ProductsPanel extends JPanel {
             showError("Name, Price, and Inventory are required.");
             return;
         }
+        
+        isAdding = true;
+        if (addBtn != null) {
+            addBtn.setEnabled(false);
+        }
+        
         try {
             double price = Double.parseDouble(priceStr);
             int inventory = Integer.parseInt(invStr);
         
             if (price < 0) {
                 showError("Price must be a positive number.");
+                isAdding = false;
+                if (addBtn != null) {
+                    addBtn.setEnabled(true);
+                }
                 return;
             }
             if (inventory < 0) {
                 showError("Inventory must be a non-negative whole number.");
+                isAdding = false;
+                if (addBtn != null) {
+                    addBtn.setEnabled(true);
+                }
                 return;
             }
         
@@ -152,19 +173,11 @@ public class ProductsPanel extends JPanel {
             showError("Invalid number format for price or inventory.");
         } catch (Exception ex) {
             showError("Failed to add product: " + ex.getMessage());
-        }
-
-        try {
-            double price = Double.parseDouble(priceStr);
-            int inventory = invStr.isEmpty() ? 0 : Integer.parseInt(invStr);
-            productService.addProduct(name, price, inventory);
-            clearForm();
-            loadProducts();
-            showSuccess("Product added successfully!");
-        } catch (NumberFormatException ex) {
-            showError("Invalid number format.");
-        } catch (Exception ex) {
-            showError("Failed to add product: " + ex.getMessage());
+        } finally {
+            isAdding = false;
+            if (addBtn != null) {
+                addBtn.setEnabled(true);
+            }
         }
     }
 
