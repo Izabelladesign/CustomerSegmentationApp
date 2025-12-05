@@ -9,11 +9,11 @@ SELECT
 
     -- Segment mapping based on RFM quintiles (5 segments: 1=Loyal, 2=New, 3=At-Risk, 4=Churned, 5=High-Value)
     CASE
-        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 4 AND q.M_Quintile >= 4 THEN 5  -- High-Value (high R, F, M)
-        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 3 AND q.M_Quintile < 4 THEN 1  -- Loyal (recent + frequent, moderate spending)
-        WHEN q.R_Quintile >= 4 AND q.F_Quintile < 3 THEN 2  -- New (recent but low frequency)
-        WHEN q.R_Quintile BETWEEN 2 AND 3 THEN 3  -- At-Risk (medium recency)
-        ELSE 4  -- Churned (low recency)
+        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 4 AND q.M_Quintile >= 4 THEN 5 
+        WHEN q.R_Quintile >= 4 AND q.F_Quintile >= 3 AND q.M_Quintile < 4 THEN 1  
+        WHEN q.R_Quintile >= 4 AND q.F_Quintile < 3 THEN 2  
+        WHEN q.R_Quintile BETWEEN 2 AND 3 THEN 3 
+        ELSE 4  
     END AS SegmentID,
 
     CURRENT_DATE,
@@ -30,8 +30,8 @@ FROM (
         m.Recency,
         m.Frequency,
         m.Monetary,
-        (6 - NTILE(5) OVER (ORDER BY m.Recency ASC)) AS R_Quintile,  -- R: 5 = most recent, 1 = least recent
-        NTILE(5) OVER (ORDER BY m.Frequency DESC) AS F_Quintile,     -- F: 5 = most frequent, 1 = least frequent
-        NTILE(5) OVER (ORDER BY m.Monetary DESC) AS M_Quintile        -- M: 5 = highest spending, 1 = lowest spending
+        (6 - NTILE(5) OVER (ORDER BY m.Recency ASC)) AS R_Quintile, 
+        NTILE(5) OVER (ORDER BY m.Frequency DESC) AS F_Quintile,     
+        NTILE(5) OVER (ORDER BY m.Monetary DESC) AS M_Quintile    
     FROM v_customer_metrics m
 ) q;
