@@ -95,15 +95,6 @@ Tabs include:
 - RFM Segments (recompute)  
 - Reports (revenue by segment)  
 
-### Recompute RFM Segments
-Open the RFM tab and click "Recompute".
-
-## Future Enhancements
-- Secure login with password hashing  
-- Chart dashboards for RFM trends  
-- Export reports to CSV/PDF  
-- More advanced filtering and search  
-- Web-based version of the app  
 
 ## Authors
 Izabella Doser, Zara Rahim, Tabassum Zahir 
