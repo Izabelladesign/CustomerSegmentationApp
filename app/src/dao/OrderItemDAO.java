@@ -9,7 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderItemDAO {
-
+    /**
+     * Inserts a new order item for a given order.
+     * Each row represents one product in the order.
+     */
     public void insertItem(int orderID, int productID, int quantity, double unitPrice) throws Exception {
         String sql = "INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice) VALUES (?, ?, ?, ?)";
 
@@ -22,7 +25,10 @@ public class OrderItemDAO {
             stmt.executeUpdate();
         }
     }
-
+    /**
+     * Returns all order items for a specific order.
+     * Useful when loading the details of an order.
+     */
     public List<OrderItem> listByOrder(int orderID) throws Exception {
         String sql = "SELECT * FROM OrderItems WHERE OrderID = ?";
 
@@ -47,7 +53,10 @@ public class OrderItemDAO {
             }
         }
     }
-
+    /**
+     * Updates the quantity for an existing order item.
+     * The LineTotal recalculates automatically because it’s a generated column in SQL.
+     */
     public void updateQuantity(int orderItemID, int newQuantity) throws Exception {
         String sql = "UPDATE OrderItems SET Quantity = ? WHERE OrderItemID = ?";
 
@@ -58,7 +67,11 @@ public class OrderItemDAO {
             stmt.executeUpdate();
         }
     }
-
+     /**
+     * Deletes one order item.
+     * If the parent order is deleted, this would also be removed
+     * automatically because of ON DELETE CASCADE on OrderID.
+     */
     public void deleteItem(int orderItemID) throws Exception {
         String sql = "DELETE FROM OrderItems WHERE OrderItemID = ?";
 
