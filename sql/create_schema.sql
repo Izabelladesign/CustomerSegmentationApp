@@ -48,7 +48,6 @@ CREATE TABLE Orders (
 
 
 -- 4. ORDER ITEMS
--- 4. ORDER ITEMS
 CREATE TABLE OrderItems (
     OrderItemID INT AUTO_INCREMENT PRIMARY KEY,
     OrderID INT NOT NULL,
@@ -72,7 +71,7 @@ CREATE TABLE Segments (
 
 
 -- 6. CUSTOMER SEGMENTS SNAPSHOT TABLE
--- Stores RFM analysis results as snapshots over time (allows tracking segment changes)
+
 CREATE TABLE CustomerSegments (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     CustomerID INT NOT NULL,
