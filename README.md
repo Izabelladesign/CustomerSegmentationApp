@@ -1,100 +1,98 @@
-# Customer Segmentation System  
-A Java + MySQL Desktop Application Using RFM Analysis
+Customer Segmentation App
+README
 
-## Overview
-The Customer Segmentation System is a Java-based desktop application that helps businesses analyze customer purchasing behavior using RFM (Recency, Frequency, Monetary) analysis. The system allows administrators to manage customers, products, orders, and segments through a Swing GUI, while MySQL handles all data storage.
+Project Overview
+The Customer Segmentation App is a Java desktop application that analyzes customer purchasing behavior using RFM analysis (Recency, Frequency, Monetary). The system supports full CRUD operations for customers and products, order creation and order-item tracking, automated RFM score computation, dynamic segment assignment, and revenue reporting. It uses a three-tier architecture consisting of a Java Swing presentation layer, a Java/JDBC logic layer, and a MySQL database backend. This project demonstrates proper database normalization, SQL scripting, JDBC integration, and GUI application design.
 
-This project follows a three-tier architecture (Presentation → Logic → Data) and implements complete CRUD functionality with automatic segment classification.
+Project Directory Structure
+app/src/
+    db/                 Database connection utilities (DBConnection.java)
+    dao/                Data Access Objects for SQL CRUD operations
+    service/            Business logic connecting UI to DAO layer
+    model/              Entity classes representing database records
+    ui/console/         Console-based user interface
+    ui/swing/           Java Swing GUI components (admin dashboard)
+app/lib/                MySQL Connector/J JDBC driver
+app/classes/            Compiled .class files
+sql/
+    create_schema.sql       Creates all tables, constraints, keys, and relationships
+    initialize_data.sql     Inserts at least 15 entries per table with no NULL values
+    rfm_views.sql           Builds SQL views for RFM metric calculation
+    rfm_refresh.sql         Recomputes RFM scoring and updates CustomerSegments table
+run-gui.sh               Script for launching the GUI application
 
-## Features
+Dependencies and Required Software
+- Java JDK 11 or later  
+- MySQL Server 8.0 or later  
+- MySQL Connector/J (included in app/lib/)  
+- MySQL Workbench (optional)
 
-### Customer and Product Management
-- Create, update, delete customers  
-- Create, update, delete products  
-- Track product pricing and inventory  
+Database Setup Instructions
+1. Start MySQL Server and open MySQL Workbench.
+2. Create the database:
+   CREATE DATABASE segdb;
+3. Run the SQL scripts in this order:
+   a. sql/create_schema.sql
+   b. sql/initialize_data.sql
+   c. sql/rfm_views.sql
+   d. sql/rfm_refresh.sql
+4. Verify that:
+   - All tables contain at least 15 rows
+   - No NULL values exist
+   - All constraints and foreign keys are active
 
-### Orders and Order Items
-- Create orders with multiple items  
-- Automatic line total calculation  
-- View all orders for any customer  
+Database Configuration
+The file db.properties must contain the following:
+db.url=jdbc:mysql://localhost:3306/segdb
+db.user=YOUR_USERNAME
+db.password=YOUR_PASSWORD
 
-### RFM Segmentation
-- Compute recency, frequency, and monetary values  
-- Automatically assign segments to customers  
-- Store and view segmentation results  
+Ensure the file is placed in app/src/db/ (same directory as DBConnection.java).
 
-### Reporting
-- Revenue by segment  
-- Top spenders  
-- Customers with no purchase history  
+Running the Application (Terminal)
+1. Compile all source files:
+   javac -cp "app/lib/mysql-connector-j-9.0.0.jar" -d app/classes $(find app/src -name "*.java")
 
-### Graphical User Interface
-- Java Swing admin interface  
-- Login screen  
-- Panels for customers, products, orders, segments, and reports  
+2. Run the GUI:
+   java -cp "app/lib/mysql-connector-j-9.0.0.jar:app/classes" ui.swing.SwingApp
 
-## Database Schema
-The system uses MySQL with the following tables:
+Running with Provided Script
+On macOS/Linux:
+   chmod +x run-gui.sh
+   ./run-gui.sh
 
-- Customers  
-- Products  
-- Orders  
-- OrderItems  
-- Segments  
-- CustomerSegments  
+JDBC Code Requirements and Documentation
+- All JDBC operations use prepared statements to prevent SQL injection.
+- DAO classes (CustomerDAO, ProductDAO, OrderDAO, OrderItemDAO, SegmentDAO) include comments explaining:
+  - Purpose of each method
+  - Query being executed
+  - How data is mapped between SQL and model objects
+- Error handling is implemented using try-with-resources, ensuring connections, statements, and result sets close safely.
+- DAO methods demonstrate the SQL used to create, read, update, and delete records.
 
-All tables are in BCNF, include primary and foreign keys, and use cascading deletes to maintain referential integrity.
+SQL Script Requirements
+create_schema.sql:
+- Creates all BCNF-compliant tables: Customers, Products, Orders, OrderItems, Segments, CustomerSegments
+- Includes NOT NULL constraints, PRIMARY KEY constraints, UNIQUE constraints (customer email), and CHECK constraints (quantity > 0)
+- Includes ON DELETE CASCADE for Orders and OrderItems to maintain referential integrity
+initialize_data.sql:
+- Populates each table with at least 15 complete rows
+- No NULL values in required fields
+rfm_views.sql:
+- Defines SQL views that compute RFM metrics using window functions (NTILE)
+rfm_refresh.sql:
+- Updates CustomerSegments with new RFM scores based on real data
 
-## Requirements
+Error Handling and Comments
+- Service layer validates inputs before calling DAO methods.
+- DAO methods catch SQL exceptions and provide meaningful error messages.
+- GUI responds to database failures with clear dialog messages instead of raw stack traces.
+- Comments are added to complex sections explaining intent and logic flow.
 
-### Software
-- Java 11 or higher  
-- MySQL 8.0 or higher  
-- MySQL Connector/J  
-- VSCode, IntelliJ, or Eclipse  
+Permissions and Path Requirements
+- Ensure MySQL user has permissions to create databases, create tables, and insert data.
+- If using a non-default MySQL installation, update db.properties with the correct absolute path, URL, username, and password.
+- If executing run-gui.sh, the script must be granted execution permission:
+  chmod +x run-gui.sh
 
-### Configuration
-Update the db.properties file:
-
-db.url=jdbc:mysql://localhost:3306/segdb  
-db.user=YOUR_USERNAME  
-db.password=YOUR_PASSWORD  
-
-## How to Run the Project
-
-### 1. Create the Database
-Run the following in MySQL Workbench or terminal:
-
-CREATE DATABASE segdb;
-
-Load the schema and sample data:
-
-source sql/create_schema.sql;  
-source sql/initialize_data.sql;  
-source sql/rfm_views.sql;
-
-### 2. Compile the Project
-In the project root:
-
-javac -cp "lib/mysql-connector-j-9.5.0.jar" -d classes $(find src -name "*.java")
-
-### 3. Run the GUI
-
-java -cp "lib/mysql-connector-j-9.5.0.jar:classes" ui.swing.SwingApp
-
-## Usage
-
-### Login
-Any non-empty username and password is accepted (demo mode).
-
-### Interface Navigation
-Tabs include:
-- Customers (CRUD)  
-- Products (CRUD)  
-- Orders (view-only)  
-- RFM Segments (recompute)  
-- Reports (revenue by segment)  
-
-
-## Authors
-Izabella Doser, Zara Rahim, Tabassum Zahir 
+End of README
