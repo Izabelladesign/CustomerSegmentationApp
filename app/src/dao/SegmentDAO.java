@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SegmentDAO {
-
+    /**
+     * Loads all segments from the database.
+     * Ordered by SegmentID so the list stays consistent in the UI.
+     */
     public List<Segment> listAll() throws Exception {
         Connection conn = DBConnection.get();
         String sql = "SELECT * FROM Segments ORDER BY SegmentID";
@@ -30,7 +33,10 @@ public class SegmentDAO {
 
         return list;
     }
-
+    /**
+     * Adds a new segment to the table.
+     * Used mostly when defining new RFM categories.
+     */
     public void insert(String segmentName, String description) throws Exception {
         String sql = "INSERT INTO Segments (SegmentName, Description) VALUES (?, ?)";
 
@@ -41,7 +47,9 @@ public class SegmentDAO {
             stmt.executeUpdate();
         }
     }
-
+    /**
+     * Updates an existing segment’s name or description.
+     */
     public void update(int segmentID, String segmentName, String description) throws Exception {
         String sql = "UPDATE Segments SET SegmentName = ?, Description = ? WHERE SegmentID = ?";
 
@@ -53,7 +61,11 @@ public class SegmentDAO {
             stmt.executeUpdate();
         }
     }
-
+    /**
+     * Deletes a segment by ID.
+     * Any linked customer segment records are handled by the database
+     * through foreign key rules (cascade).
+     */
     public void delete(int segmentID) throws Exception {
         String sql = "DELETE FROM Segments WHERE SegmentID = ?";
 
