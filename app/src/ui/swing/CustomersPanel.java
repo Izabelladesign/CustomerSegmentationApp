@@ -22,10 +22,9 @@ import model.Customer;
 import model.Segment;
 import service.CustomerService;
 
-/**
- * Basic customer management panel.
- * Allows viewing and adding customers using the existing service layer.
- */
+
+ // Basic customer management panel.
+ 
 public class CustomersPanel extends JPanel {
 
     private final CustomerService customerService;
