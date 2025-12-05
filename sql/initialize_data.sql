@@ -39,12 +39,6 @@ VALUES
 ('Webcam', 89.99, 28);
 
 -- Insert orders with varied dates to ensure each segment has customers
--- Strategy: 
--- High-Value (Segment 5): High spending + recent + frequent (Customer 1, 6)
--- Loyal (Segment 1): Recent + frequent (Customer 2, 4)
--- New (Segment 2): Recent but lower frequency (Customer 3, 5, 7)
--- At-Risk (Segment 3): Medium recency, declining (Customer 8, 9, 10)
--- Churned (Segment 4): Old orders, no recent activity (Customer 11, 12, 13, 14, 15)
 
 INSERT INTO Orders (CustomerID, OrderDate, OrderAmount)
 VALUES
@@ -163,5 +157,3 @@ INSERT INTO Segments (SegmentID, SegmentName, Description) VALUES
 (4, 'Churned', 'Customers inactive for a long time'),
 (5, 'High-Value', 'Customers with high spending');
 
--- Note: CustomerSegments are now calculated dynamically via rfm_refresh.sql
--- Run "Recompute RFM Segments" in the GUI to populate this table
